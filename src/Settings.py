@@ -1,3 +1,5 @@
+import threading
+
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QTextEdit, QComboBox, QLabel, QLineEdit, QCheckBox, QRadioButton, QPushButton
@@ -130,7 +132,7 @@ class Settings(QWidget):
         layout.addLayout(defaultModelLayout)
         layout.addLayout(submissionLayout)
         layout.addStretch(1)
-        self.loadSettings(True)
+        threading.Thread(target=self.loadSettings(True)).start()
 
     def submit(self):
         delimUser = self.delimUserInput.text().lower()
