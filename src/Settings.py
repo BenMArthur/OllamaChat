@@ -13,13 +13,13 @@ import json
 class Settings(QWidget):
     submitted = pyqtSignal(str)
 
-    def __init__(self, dataStore):
+    def __init__(self, dataStore, screen):
         super().__init__()
         layout = QVBoxLayout()
         self.dataStore = dataStore
         self.defaults = {"delimUser": "user", "delimAssistant": "assistant", "delimSystem": "system",
                         "enableSysPrompt": False, "hideSysPrompt": False, "sysPrompt": "", "loadFixedModel": False,
-                        "selectedModel": "", "prevModel": ""}
+                        "selectedModel": "", "prevModel": "", "pos": (screen.width()//2-300, screen.height()//2-150), "size": (600, 300)}
         self.settings = self.defaults
 
         self.setWindowTitle("Settings")
@@ -155,7 +155,9 @@ class Settings(QWidget):
                          "sysPrompt": self.sysPromptInput.toPlainText(),
                          "loadFixedModel": self.defaultModelRadioFixed.isChecked(),
                          "selectedModel": self.modelSelect.currentText(),
-                         "prevModel": self.settings["prevModel"]}
+                         "prevModel": self.settings["prevModel"],
+                         "pos": self.settings["pos"],
+                         "size": self.settings["size"]}
         self.saveSettingsFile()
         self.hide()
         self.submitted.emit("New settings")
@@ -213,3 +215,9 @@ class Settings(QWidget):
 
         except Exception as e:
             self.display_text("toggleSettings: ", str(e))
+
+    def movedOrResized(self, pos, size):
+        self.settings["pos"] = (pos.x(), pos.y())
+        self.settings["size"] = (size.width(), size.height())
+        #print(self.settings["pos"], self.settings["size"])
+        self.saveSettingsFile()

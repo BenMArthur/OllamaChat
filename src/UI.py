@@ -2,21 +2,22 @@ import re
 import sys
 
 from PyQt5.Qt import Qt
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, QTextEdit
 
 
 class UI(QMainWindow):
     newPrompt = pyqtSignal(str)
-    def __init__(self, dataStore, models, model):
+    moveOrResize = pyqtSignal(str)
+    def __init__(self, dataStore, models, model, pos, size):
         super().__init__()
 
         self.dataStore = dataStore
 
         self.setWindowTitle("Chat")
-        self.resize(600, 400)
-        self.setFocus()
+        self.resize(size[0], size[1])
+        self.move(pos[0], pos[1])
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
@@ -69,6 +70,10 @@ class UI(QMainWindow):
         top_layout.addWidget(self.modelSelect)
         top_layout.addWidget(self.settingsButton)
         layout.addLayout(top_layout)
+
+        self._move_resize_timer = QTimer()
+        self._move_resize_timer.setSingleShot(True)
+        self._move_resize_timer.timeout.connect(self.on_move_resize_finished)
 
         self.delims = [""]
 
@@ -131,4 +136,17 @@ class UI(QMainWindow):
             return super().eventFilter(obj, event)
         except Exception as e:
             print("eventFilter", str(e))
+
+    def moveEvent(self, event):
+        # Restart timer whenever moveEvent fires
+        self._move_resize_timer.start(500)
+        super().moveEvent(event)
+
+    def resizeEvent(self, event):
+        # Restart timer whenever resizeEvent fires
+        self._move_resize_timer.start(500)
+        super().resizeEvent(event)
+
+    def on_move_resize_finished(self):
+        self.moveOrResize.emit("movedOrResized")
 

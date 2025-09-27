@@ -32,7 +32,7 @@ def run():
 addStartup()
 
 run_lock = Lock()
-keyboard.add_hotkey('shift+space', run)
+keyboard.add_hotkey('alt+space', run)
 keyboard.wait()
 
 

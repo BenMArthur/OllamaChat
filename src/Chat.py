@@ -25,7 +25,8 @@ class Chat(QObject):
         self.dataStore.mkdir(parents=True, exist_ok=True)
         atexit.register(self.exit_handler)
 
-        self.settings = Settings(self.dataStore)
+        screen = app.primaryScreen().availableGeometry()
+        self.settings = Settings(self.dataStore, screen)
         self.settings.submitted.connect(self.fetchSettings)
 
         if self.settings.settings["loadFixedModel"]:
@@ -37,7 +38,8 @@ class Chat(QObject):
             self.model = models[0]
 
         #create UI
-        self.UI = UI(self.dataStore, models, self.model)
+        self.UI = UI(self.dataStore, models, self.model,
+                     self.settings.settings["pos"], self.settings.settings["size"])
         #connect up UI
         self.UI.historySelect.currentIndexChanged.connect(self.loadChat)
         self.UI.saveButton.clicked.connect(self.saveChat)
@@ -47,8 +49,9 @@ class Chat(QObject):
         self.UI.settingsButton.clicked.connect(self.settings.toggleSettings)
         self.UI.chat_display.installEventFilter(self.UI)
 
-        #emitter from UI
+        #emitters from UI
         self.UI.newPrompt.connect(self.prompt)
+        self.UI.moveOrResize.connect(lambda: self.settings.movedOrResized(self.UI.pos(), self.UI.size()))
 
         self.fetchSettings()
 
