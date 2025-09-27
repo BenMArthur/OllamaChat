@@ -4,6 +4,9 @@ You must install [ollama](ollama.com) and download a model
 alt+space will open the window, shift+return will submit a prompt \
 all prompts, responses, and system prompts are stored in an editbale text box, so it is easy regenerate responses or edit/streamline them to not have unneeded information that would distract the model
 
+all chats are temporarily saved until you delete them or close the window \
+to save chats between sessions you must press the save button  
+updates to chats will also be saved temporarily, but to lock in those updates you must press the save button again.
 
 
 \
