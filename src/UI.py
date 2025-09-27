@@ -1,7 +1,8 @@
 import re
+import sys
 
 from PyQt5.Qt import Qt
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, QTextEdit
 
@@ -15,7 +16,6 @@ class UI(QMainWindow):
 
         self.setWindowTitle("Chat")
         self.resize(600, 400)
-        self.show()
         self.setFocus()
         central = QWidget()
         self.setCentralWidget(central)
@@ -23,7 +23,10 @@ class UI(QMainWindow):
 
         self.topBar(layout, models, model)
         self.createChatDisplay(layout)
-
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.show()
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
+        self.show()
 
     # Top bar
     def topBar(self, layout, models, model):
@@ -66,6 +69,8 @@ class UI(QMainWindow):
         top_layout.addWidget(self.modelSelect)
         top_layout.addWidget(self.settingsButton)
         layout.addLayout(top_layout)
+
+        self.delims = [""]
 
     # Chat display
     def createChatDisplay(self, layout):

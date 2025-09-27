@@ -2,30 +2,22 @@ import sys
 import re
 import threading
 from pathlib import Path
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt5.QtCore import Qt, QObject
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QObject
 from ollama import chat
-
-from subprocess import run
+from ollama import list as ollamaList
 from Settings import Settings
 from UI import UI
 import os
 import atexit
 
 class Chat(QObject):
-    @staticmethod
-    def Main():
-        models = run("ollama list", capture_output=True).stdout.decode("utf-8")
-        models = models.split("\n")[1:-1]
-        models = [re.findall(r"\S+", item)[0] for item in models]
 
+    def __init__(self):
         app = QApplication(sys.argv)
-        Chat(models)
-        app.exec()
-
-    def __init__(self, models):
         super().__init__()
 
+        models = [str(model.model) for model in ollamaList().models]
         self.hiddenDefaultPrompt = None
         self.prevChat = None
         self.deletingTemp = False
@@ -35,7 +27,6 @@ class Chat(QObject):
 
         self.settings = Settings(self.dataStore)
         self.settings.submitted.connect(self.fetchSettings)
-        self.fetchSettings()
 
         if self.settings.settings["loadFixedModel"]:
             self.model = self.settings.settings["selectedModel"]
@@ -53,13 +44,16 @@ class Chat(QObject):
         self.UI.deleteButton.clicked.connect(self.deleteChat)
         self.UI.newButton.clicked.connect(self.newChat)
         self.UI.modelSelect.currentIndexChanged.connect(self.changeModel)
-        self.UI.settingsButton.clicked.connect(self.toggleSettings)
+        self.UI.settingsButton.clicked.connect(self.settings.toggleSettings)
         self.UI.chat_display.installEventFilter(self.UI)
 
         #emitter from UI
         self.UI.newPrompt.connect(self.prompt)
 
+        self.fetchSettings()
+
         self.newChat()
+        app.exec()
 
 
     #get settings when they are changed
@@ -72,7 +66,7 @@ class Chat(QObject):
             self.delims = {"user": f"{self.settings.settings["delimUser"]}:",
                            "assistant": f"{self.settings.settings["delimAssistant"]}:",
                            "system": f"{self.settings.settings["delimSystem"]}:"}
-
+            self.UI.delims = self.delims
 
         except Exception as e:
             self.UI.display_text("fetchSettings: ", str(e))
@@ -295,17 +289,6 @@ class Chat(QObject):
 
         except Exception as e:
             self.UI.display_text("changeModel: ", str(e))
-
-    # open the settings menu
-    def toggleSettings(self):
-        try:
-            if self.settings.isVisible():
-                self.settings.hide()
-            else:
-                self.settings.show()
-
-        except Exception as e:
-            self.UI.display_text("toggleSettings: ", str(e))
 
     #delete temp folder on end
     def exit_handler(self):

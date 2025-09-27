@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QTextEdit, QComboBox, QLabel, QLineEdit, QCheckBox, QRadioButton, QPushButton
 )
 from PyQt5.QtCore import pyqtSignal
-from subprocess import run
+from ollama import list as ollamaList
 import re
 import json
 
@@ -102,9 +102,7 @@ class Settings(QWidget):
             defaultModelLayout.addWidget(self.defaultModelRadioVar)
             defaultModelRadioFixedLayout = QHBoxLayout()
             self.defaultModelRadioFixed = QRadioButton("Fixed model:")
-            models = run("ollama list", capture_output=True).stdout.decode("utf-8")
-            models = models.split("\n")[1:-1]
-            self.models = [re.findall(r"\S+", item)[0] for item in models]
+            self.models = [str(model.model) for model in ollamaList().models]
             self.modelSelect = QComboBox()
             self.modelSelect.addItems(self.models)
             self.modelSelect.setFixedWidth(180)
@@ -204,3 +202,14 @@ class Settings(QWidget):
 
     def showEvent(self, a0):
         self.loadSettings(False)
+
+    # open the settings menu
+    def toggleSettings(self):
+        try:
+            if self.isVisible():
+                self.hide()
+            else:
+                self.show()
+
+        except Exception as e:
+            self.display_text("toggleSettings: ", str(e))

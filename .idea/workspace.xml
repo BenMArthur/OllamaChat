@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="fully moved UI into UI">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="implemented functionality for model select settings, setings done for now">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/runChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/runChat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +63,7 @@
       <recent name="C:\Users\4budg\PycharmProjects\Chat" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.runChat">
     <configuration name="Chat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Chat" />
       <option name="ENV_FILES" value="" />
@@ -84,8 +86,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="runChat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Chat" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/runChat.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.runChat" />
         <item itemvalue="Python.Chat" />
       </list>
     </recent_temporary>
@@ -162,7 +187,15 @@
       <option name="project" value="LOCAL" />
       <updated>1758993246233</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="implemented functionality for model select settings, setings done for now">
+      <option name="closed" value="true" />
+      <created>1758994437284</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1758994437284</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -183,6 +216,7 @@
     <MESSAGE value="didnt rearange creator, added default sysprompt: may still want to do for when settings change. going to split Chat" />
     <MESSAGE value="split UI into own class, chat is still main window, and therefore has some UI logic" />
     <MESSAGE value="fully moved UI into UI" />
-    <option name="LAST_COMMIT_MESSAGE" value="fully moved UI into UI" />
+    <MESSAGE value="implemented functionality for model select settings, setings done for now" />
+    <option name="LAST_COMMIT_MESSAGE" value="implemented functionality for model select settings, setings done for now" />
   </component>
 </project>
