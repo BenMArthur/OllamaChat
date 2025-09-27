@@ -3,7 +3,7 @@ import re
 import threading
 from pathlib import Path
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QObject
 from ollama import chat
 
 from subprocess import run
@@ -12,7 +12,7 @@ from UI import UI
 import os
 import atexit
 
-class Chat(QMainWindow):
+class Chat(QObject):
     @staticmethod
     def Main():
         models = run("ollama list", capture_output=True).stdout.decode("utf-8")
@@ -36,13 +36,7 @@ class Chat(QMainWindow):
         atexit.register(self.exit_handler)
 
         #create UI
-        self.setWindowTitle("Chat")
-        self.resize(600, 400)
-        self.show()
-        self.setFocus()
-        central = QWidget()
-        self.setCentralWidget(central)
-        self.UI = UI(self.dataStore, models, model, central)
+        self.UI = UI(self.dataStore, models, model)
         #connect up UI
         self.UI.historySelect.currentIndexChanged.connect(self.loadChat)
         self.UI.saveButton.clicked.connect(self.saveChat)
@@ -50,11 +44,13 @@ class Chat(QMainWindow):
         self.UI.newButton.clicked.connect(self.newChat)
         self.UI.modelSelect.currentIndexChanged.connect(self.changeModel)
         self.UI.settingsButton.clicked.connect(self.toggleSettings)
-        self.UI.chat_display.installEventFilter(self)
+        self.UI.chat_display.installEventFilter(self.UI)
 
         self.settings = Settings(self.dataStore)
         self.settings.submitted.connect(self.fetchSettings)
         self.fetchSettings()
+
+        self.UI.newPrompt.connect(self.prompt)
 
         self.newChat()
 
@@ -300,19 +296,6 @@ class Chat(QMainWindow):
 
         except Exception as e:
             self.UI.display_text("toggleSettings: ", str(e))
-
-    # handle shift-enter and recolour text while talking
-    def eventFilter(self, obj, event):
-        try:
-            if obj is self.UI.chat_display and event.type() == event.KeyPress:
-                if event.key() == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
-                    self.prompt()
-                    return True
-                elif event.key() == Qt.Key_Space:
-                    self.UI.recolour_text(self.delims)
-            return super().eventFilter(obj, event)
-        except Exception as e:
-            self.display_text("eventFilter", str(e))
 
     #delete temp folder on end
     def exit_handler(self):

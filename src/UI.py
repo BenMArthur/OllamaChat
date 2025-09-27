@@ -1,17 +1,24 @@
 import re
 
-from PyQt5 import Qt
-from PyQt5.QtCore import QObject
+from PyQt5.Qt import Qt
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, QTextEdit
 
 
-class UI(QObject):
-    def __init__(self, dataStore, models, model, central):
+class UI(QMainWindow):
+    newPrompt = pyqtSignal(str)
+    def __init__(self, dataStore, models, model):
         super().__init__()
 
         self.dataStore = dataStore
 
+        self.setWindowTitle("Chat")
+        self.resize(600, 400)
+        self.show()
+        self.setFocus()
+        central = QWidget()
+        self.setCentralWidget(central)
         layout = QVBoxLayout(central)
 
         self.topBar(layout, models, model)
@@ -106,3 +113,17 @@ class UI(QObject):
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(text + end)
         self.chat_display.ensureCursorVisible()
+
+    # handle shift-enter and recolour text while talking
+    def eventFilter(self, obj, event):
+        try:
+            if obj is self.chat_display and event.type() == event.KeyPress:
+                if event.key() == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
+                    self.newPrompt.emit("Prompt submitted")
+                    return True
+                elif event.key() == Qt.Key_Space:
+                    self.recolour_text(self.delims)
+            return super().eventFilter(obj, event)
+        except Exception as e:
+            print("eventFilter", str(e))
+
