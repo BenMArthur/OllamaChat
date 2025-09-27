@@ -1,8 +1,6 @@
 import keyboard
-import subprocess
-import os
 from Chat import Chat
-from threading import Thread
+#from threading import Thread
 
 
 def run():

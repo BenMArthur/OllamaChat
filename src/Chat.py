@@ -16,6 +16,7 @@ import os
 import atexit
 
 class Chat(QMainWindow):
+    @staticmethod
     def Main():
         models = run("ollama list", capture_output=True).stdout.decode("utf-8")
         models = models.split("\n")[1:-1]
@@ -121,7 +122,7 @@ class Chat(QMainWindow):
         currentIndex = self.historySelect.currentIndex()
         newName = self.historyInput.text()
         i=0
-        while newName in [self.historyNames[i] for i in range(len(self.historyNames)) if i != currentIndex]:
+        while newName in [self.historyNames[j] for j in range(len(self.historyNames)) if j != currentIndex]:
             i+=1
 
             if f"{newName}({i})" not in self.historyNames:
@@ -279,8 +280,8 @@ class Chat(QMainWindow):
                     role = "system"
                 foundImage = re.search(r"\"[A-Z]:[\\/].+\"", prompt[counter + 1])
                 if foundImage:
+                    prompt[counter + 1] = prompt[counter + 1].replace(path, "[image]")
                     path = foundImage.group(0).strip('"')
-                    prompt[counter + 1] = prompt[counter + 1].replace(match.group(0), '')
                 else:
                     path = None
                 if path:
@@ -312,8 +313,6 @@ class Chat(QMainWindow):
             for child in path.iterdir():
                 if child.is_file():
                     child.unlink()
-                else:
-                    rm_tree(child)
             path.rmdir()
 
 
