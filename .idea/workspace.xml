@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="before rearanging creator, fixed found errors">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="didnt rearange creator, added default sysprompt: may still want to do for when settings change. going to split Chat">
+      <change afterPath="$PROJECT_DIR$/src/UI.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1758972101300</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="didnt rearange creator, added default sysprompt: may still want to do for when settings change. going to split Chat">
+      <option name="closed" value="true" />
+      <created>1758988329124</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1758988329124</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -156,6 +164,7 @@
     <MESSAGE value="before rearanging creator" />
     <MESSAGE value="before rearanging creator, added gitignore etc." />
     <MESSAGE value="before rearanging creator, fixed found errors" />
-    <option name="LAST_COMMIT_MESSAGE" value="before rearanging creator, fixed found errors" />
+    <MESSAGE value="didnt rearange creator, added default sysprompt: may still want to do for when settings change. going to split Chat" />
+    <option name="LAST_COMMIT_MESSAGE" value="didnt rearange creator, added default sysprompt: may still want to do for when settings change. going to split Chat" />
   </component>
 </project>
