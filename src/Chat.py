@@ -121,14 +121,17 @@ class Chat(QObject):
         try:
             return re.split(f"({self.delims["user"]}|{self.delims["assistant"]}|{self.delims["system"]})", text, re.IGNORECASE)[1:]
         except Exception as e:
-            self.UI.display_text("addHiddenPromptIfNeeded: ", str(e))
+            self.UI.display_text("splitText: ", str(e))
 
     def addHiddenPromptIfNeeded(self, text):
         try:
-            split = self.splitText(text)
-            if not split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt:
-                text = f"{self.delims["system"]} {self.hiddenDefaultPrompt}\n\n{text}"
-            return text
+            if text:
+                split = self.splitText(text)
+                if len(split)>0:
+                    if not split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt:
+                        text = f"{self.delims["system"]} {self.hiddenDefaultPrompt}\n\n{text}"
+                return text
+            return ""
 
         except Exception as e:
             self.UI.display_text("addHiddenPromptIfNeeded: ", str(e))
@@ -147,8 +150,9 @@ class Chat(QObject):
                     text = file.read()
                     split = self.splitText(text)
                     if len(split) >= 2:
-                        if split[0].startswith(self.delims["system"]) and split[1].strip() == self.hiddenDefaultPrompt.strip():
-                            self.UI.display_text("".join(split[2:]))
+                        if split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt:
+                            if split[1].strip() == self.hiddenDefaultPrompt.strip():
+                                self.UI.display_text("".join(split[2:]))
                         else:
                             self.UI.display_text(text)
                     else:
@@ -304,4 +308,4 @@ class Chat(QObject):
 
 
 if __name__ == "__main__":
-    Chat.Main()
+    Chat()

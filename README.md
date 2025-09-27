@@ -1,3 +1,5 @@
+there are bugs that im aware of so dont switch/save chats (although they should have been fixed in the src), I think they happened when i was splitting the one main class into 3, im using it a bit to try and notice any other bugs
+
 An app for interacting with your ollama models \
 You must install [ollama](ollama.com) and download a model 
 
