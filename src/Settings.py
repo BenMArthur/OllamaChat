@@ -19,7 +19,7 @@ class Settings(QWidget):
         self.dataStore = dataStore
         self.defaults = {"delimUser": "user", "delimAssistant": "assistant", "delimSystem": "system",
                         "enableSysPrompt": False, "hideSysPrompt": False, "sysPrompt": "", "loadFixedModel": False,
-                        "selectedModel": ""}
+                        "selectedModel": "", "prevModel": ""}
         self.settings = self.defaults
 
         self.setWindowTitle("Settings")
@@ -156,14 +156,18 @@ class Settings(QWidget):
                          "hideSysPrompt": self.hideSysPrompt.isChecked(),
                          "sysPrompt": self.sysPromptInput.toPlainText(),
                          "loadFixedModel": self.defaultModelRadioFixed.isChecked(),
-                         "selectedModel": self.modelSelect.currentText()}
-        try:
-            with open(self.dataStore / f"settings.json", "w") as file:
-                json.dump(self.settings, file)
-        except Exception as e:
-            print(e)
+                         "selectedModel": self.modelSelect.currentText(),
+                         "prevModel": self.settings["prevModel"]}
+        self.saveSettingsFile()
         self.hide()
         self.submitted.emit("New settings")
+
+    def saveSettingsFile(self):
+            try:
+                with open(self.dataStore / f"settings.json", "w") as file:
+                    json.dump(self.settings, file)
+            except Exception as e:
+                print(e)
 
     def loadSettings(self, checkFile):
         if checkFile:

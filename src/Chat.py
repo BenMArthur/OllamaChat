@@ -18,16 +18,14 @@ class Chat(QObject):
         models = run("ollama list", capture_output=True).stdout.decode("utf-8")
         models = models.split("\n")[1:-1]
         models = [re.findall(r"\S+", item)[0] for item in models]
-        model = models[0]
 
         app = QApplication(sys.argv)
-        Chat(model, models)
+        Chat(models)
         app.exec()
 
-    def __init__(self, model, models):
+    def __init__(self, models):
         super().__init__()
 
-        self.model = model
         self.hiddenDefaultPrompt = None
         self.prevChat = None
         self.deletingTemp = False
@@ -35,8 +33,20 @@ class Chat(QObject):
         self.dataStore.mkdir(parents=True, exist_ok=True)
         atexit.register(self.exit_handler)
 
+        self.settings = Settings(self.dataStore)
+        self.settings.submitted.connect(self.fetchSettings)
+        self.fetchSettings()
+
+        if self.settings.settings["loadFixedModel"]:
+            self.model = self.settings.settings["selectedModel"]
+
+        elif self.settings.settings["prevModel"] != "":
+            self.model = self.settings.settings["prevModel"]
+        else:
+            self.model = models[0]
+
         #create UI
-        self.UI = UI(self.dataStore, models, model)
+        self.UI = UI(self.dataStore, models, self.model)
         #connect up UI
         self.UI.historySelect.currentIndexChanged.connect(self.loadChat)
         self.UI.saveButton.clicked.connect(self.saveChat)
@@ -46,10 +56,7 @@ class Chat(QObject):
         self.UI.settingsButton.clicked.connect(self.toggleSettings)
         self.UI.chat_display.installEventFilter(self.UI)
 
-        self.settings = Settings(self.dataStore)
-        self.settings.submitted.connect(self.fetchSettings)
-        self.fetchSettings()
-
+        #emitter from UI
         self.UI.newPrompt.connect(self.prompt)
 
         self.newChat()
@@ -263,6 +270,9 @@ class Chat(QObject):
     #generate and display a prompt given a history
     def generateResponse(self, history):
         try:
+            self.settings.settings["prevModel"] = self.model
+            self.settings.saveSettingsFile()
+
             self.UI.display_text(f"\n\n{self.delims["assistant"]} ")
             self.UI.recolour_text(self.delims)
             stream = chat(
