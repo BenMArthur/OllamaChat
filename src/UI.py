@@ -85,24 +85,24 @@ class UI(QMainWindow):
         layout.addWidget(self.chat_display)
 
     # recolour all text in text box
-    def recolour_text(self, delims):
+    def recolour_text(self):
         try:
             text = self.chat_display.toPlainText().lower()
             cursor = self.chat_display.textCursor()
             cursor.select(QTextCursor.Document)
             cursor.setCharFormat(QTextCharFormat())  # reset formatting
 
-            pattern = re.compile(f"({delims["user"]}|{delims["assistant"]}|{delims["system"]})")
+            pattern = re.compile(f"({self.delims["user"]}|{self.delims["assistant"]}|{self.delims["system"]})")
             matches = list(pattern.finditer(text))
 
             for i, match in enumerate(matches):
                 role_text = match.group().lower()
                 role_color = None
-                if delims["user"] in role_text:
+                if self.delims["user"] in role_text:
                     role_color = QColor("blue")
-                elif delims["assistant"] in role_text:
+                elif self.delims["assistant"] in role_text:
                     role_color = QColor("green")
-                elif delims["system"] in role_text:
+                elif self.delims["system"] in role_text:
                     role_color = QColor("gray")
 
                 start = match.start()
@@ -132,19 +132,19 @@ class UI(QMainWindow):
                     self.newPrompt.emit("Prompt submitted")
                     return True
                 elif event.key() == Qt.Key_Space:
-                    self.recolour_text(self.delims)
+                    self.recolour_text()
             return super().eventFilter(obj, event)
         except Exception as e:
             print("eventFilter", str(e))
 
     def moveEvent(self, event):
         # Restart timer whenever moveEvent fires
-        self._move_resize_timer.start(500)
+        self._move_resize_timer.start(300)
         super().moveEvent(event)
 
     def resizeEvent(self, event):
         # Restart timer whenever resizeEvent fires
-        self._move_resize_timer.start(500)
+        self._move_resize_timer.start(300)
         super().resizeEvent(event)
 
     def on_move_resize_finished(self):

@@ -14,6 +14,7 @@ import os
 import atexit
 import threading
 import time
+from UI import UI
 
 class PromptWorker(QObject):
     finished = pyqtSignal()
@@ -78,88 +79,20 @@ class Chat(QMainWindow):
         else:
             self.model = models[0]
 
-        #create UI
-        def makeUI(models, model, pos, size):
-            self.setWindowTitle("Chat")
-            self.resize(size[0], size[1])
-            self.move(pos[0], pos[1])
-            central = QWidget()
-            self.setCentralWidget(central)
-            layout = QVBoxLayout(central)
 
-            # Top bar
-            def topBar(layout, models, model):
-                top_layout = QHBoxLayout()
-
-                # left aligned
-                self.historySelect = QComboBox(editable=True)
-                self.historySelect.setFixedWidth(18)
-                self.historySelect.view().setMinimumWidth(146)
-                self.historyNames = [path.name[:-4] for path in
-                                     list(sorted((self.dataStore / f"history").glob('*.txt')))]
-                top_layout.addWidget(self.historySelect)
-
-                self.historyInput = QLineEdit()
-                self.historyInput.setFixedWidth(125)
-                top_layout.addWidget(self.historyInput)
-
-                self.saveButton = QPushButton(text="💾")
-                self.saveButton.setFixedWidth(27)
-                top_layout.addWidget(self.saveButton)
-
-                self.deleteButton = QPushButton(text="❌")
-                self.deleteButton.setFixedWidth(27)
-                top_layout.addWidget(self.deleteButton)
-
-                self.newButton = QPushButton(text="📖")
-                self.newButton.setFixedWidth(27)
-                top_layout.addWidget(self.newButton)
-
-                # right aligned
-                top_layout.addStretch(1)
-
-                self.modelSelect = QComboBox()
-                self.modelSelect.setFixedWidth(180)
-                self.modelSelect.addItems(models)
-                self.modelSelect.setCurrentText(model)
-
-                self.settingsButton = QPushButton(text="⚙")
-                self.settingsButton.setFixedWidth(27)
-
-                top_layout.addWidget(self.modelSelect)
-                top_layout.addWidget(self.settingsButton)
-                layout.addLayout(top_layout)
-
-                self._move_resize_timer = QTimer()
-                self._move_resize_timer.setSingleShot(True)
-                self._move_resize_timer.timeout.connect(self.on_move_resize_finished)
-
-            # Chat display
-            def createChatDisplay(layout):
-                self.chat_display = QTextEdit()
-                self.chat_display.setAcceptRichText(False)
-                self.chat_display.setLineWrapMode(QTextEdit.WidgetWidth)
-                layout.addWidget(self.chat_display)
-
-            topBar(layout, models, model)
-            createChatDisplay(layout)
-            self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
-            self.show()
-            self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
-            self.show()
-        makeUI(models, self.model, self.settings.settings["pos"], self.settings.settings["size"])
+        self.ui = UI(self.dataStore, models, self.model, self.settings.settings["pos"], self.settings.settings["size"])
         #connect up UI
-        self.historySelect.currentIndexChanged.connect(self.loadChat)
-        self.saveButton.clicked.connect(self.saveChat)
-        self.deleteButton.clicked.connect(self.deleteChat)
-        self.newButton.clicked.connect(self.newChat)
-        self.modelSelect.currentIndexChanged.connect(self.changeModel)
-        self.settingsButton.clicked.connect(self.settings.toggleSettings)
-        self.chat_display.installEventFilter(self)
+        self.ui.historySelect.currentIndexChanged.connect(self.loadChat)
+        self.ui.saveButton.clicked.connect(self.saveChat)
+        self.ui.deleteButton.clicked.connect(self.deleteChat)
+        self.ui.newButton.clicked.connect(self.newChat)
+        self.ui.modelSelect.currentIndexChanged.connect(self.changeModel)
+        self.ui.settingsButton.clicked.connect(self.settings.toggleSettings)
+        self.ui.chat_display.installEventFilter(self.ui)
 
         #emitters from UI
-        self.newPrompt.connect(self.prompt)
-        self.moveOrResize.connect(lambda: self.settings.movedOrResized(self.pos(), self.size()))
+        self.ui.newPrompt.connect(self.prompt)
+        self.ui.moveOrResize.connect(lambda: self.settings.movedOrResized(self.ui.pos(), self.ui.size()))
 
         self.fetchSettings()
 
@@ -176,60 +109,61 @@ class Chat(QMainWindow):
             self.delims = {"user": f"{self.settings.settings["delimUser"]}:",
                            "assistant": f"{self.settings.settings["delimAssistant"]}:",
                            "system": f"{self.settings.settings["delimSystem"]}:"}
+            self.ui.delims = self.delims
 
         except Exception as e:
-            self.display_text("fetchSettings: ", str(e))
+            self.ui.display_text("fetchSettings: ", str(e))
 
     #save chat permenantly
     def saveChat(self):
         try:
-            currentIndex = self.historySelect.currentIndex()
-            newName = self.historyInput.text()
+            currentIndex = self.ui.historySelect.currentIndex()
+            newName = self.ui.historyInput.text()
             i=0
-            while newName in [self.historyNames[j] for j in range(len(self.historyNames)) if j != currentIndex]:
+            while newName in [self.ui.historyNames[j] for j in range(len(self.ui.historyNames)) if j != currentIndex]:
                 i+=1
-                if f"{newName}({i})" not in self.historyNames:
-                    newName = f"{self.historyInput.text()} ({i})"
+                if f"{newName}({i})" not in self.ui.historyNames:
+                    newName = f"{self.ui.historyInput.text()} ({i})"
 
-            if (self.dataStore / f"history/{self.historyNames[currentIndex]}.txt").is_file():
-                Path.rename(self.dataStore / f"history/{self.historyNames[currentIndex]}.txt", self.dataStore / f"history/{newName}.txt")
+            if (self.dataStore / f"history/{self.ui.historyNames[currentIndex]}.txt").is_file():
+                Path.rename(self.dataStore / f"history/{self.ui.historyNames[currentIndex]}.txt", self.dataStore / f"history/{newName}.txt")
             else:
                 (self.dataStore / "history").mkdir(parents=True, exist_ok=True)
                 with open(self.dataStore / f"history/{newName}.txt", "w"):
                     pass
 
-            ToWrite = self.addHiddenPromptIfNeeded(self.chat_display.toPlainText())
+            ToWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
             with open(self.dataStore / f"history/{newName}.txt", "w") as file:
                 file.write(ToWrite)
 
-            self.historySelect.clear()
-            self.historyNames[currentIndex] = newName
-            self.historySelect.addItems(self.historyNames)
-            self.historyInput.setText(newName)
-            self.historySelect.setCurrentIndex(currentIndex)
+            self.ui.historySelect.clear()
+            self.ui.historyNames[currentIndex] = newName
+            self.ui.historySelect.addItems(self.ui.historyNames)
+            self.ui.historyInput.setText(newName)
+            self.ui.historySelect.setCurrentIndex(currentIndex)
 
             self.saveTemp()
 
         except Exception as e:
-            self.display_text("saveChat: ", str(e))
+            self.ui.display_text("saveChat: ", str(e))
 
     #save chat as a temporary chat when switching away
     def saveTemp(self):
         try:
             (self.dataStore / f"history/temp{os.getpid()}").mkdir(parents=True, exist_ok=True)
 
-            ToWrite = self.addHiddenPromptIfNeeded(self.chat_display.toPlainText())
+            ToWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
             with open(self.dataStore / f"history/temp{os.getpid()}/{self.prevChat}.txt", "w") as file:
                 file.write(ToWrite)
 
         except Exception as e:
-            self.display_text("saveTemp: ", str(e))
+            self.ui.display_text("saveTemp: ", str(e))
 
     def splitText(self, text):
         try:
             return re.split(f"({self.delims["user"]}|{self.delims["assistant"]}|{self.delims["system"]})", text, flags=re.IGNORECASE)[1:]
         except Exception as e:
-            self.display_text("splitText: ", str(e))
+            self.ui.display_text("splitText: ", str(e))
 
     def addHiddenPromptIfNeeded(self, text):
         try:
@@ -242,7 +176,7 @@ class Chat(QMainWindow):
             return ""
 
         except Exception as e:
-            self.display_text("addHiddenPromptIfNeeded: ", str(e))
+            self.ui.display_text("addHiddenPromptIfNeeded: ", str(e))
 
     #load the chat selected in the dropdown
     def loadChat(self):
@@ -251,93 +185,93 @@ class Chat(QMainWindow):
                 self.saveTemp()
             self.deletingTemp = False
 
-            self.historyInput.setText(self.historyNames[self.historySelect.currentIndex()])
-            if (self.dataStore / f"history/temp{os.getpid()}/{self.historyNames[self.historySelect.currentIndex()]}.txt").is_file():
-                with open(self.dataStore / f"history/temp{os.getpid()}/{self.historyNames[self.historySelect.currentIndex()]}.txt", "r") as file:
-                    self.chat_display.clear()
+            self.ui.historyInput.setText(self.ui.historyNames[self.ui.historySelect.currentIndex()])
+            if (self.dataStore / f"history/temp{os.getpid()}/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt").is_file():
+                with open(self.dataStore / f"history/temp{os.getpid()}/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt", "r") as file:
+                    self.ui.chat_display.clear()
                     text = file.read()
                     split = self.splitText(text)
                     if len(split) >= 2:
                         if split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt is not None:
                             if split[1].strip() == self.hiddenDefaultPrompt.strip():
-                                self.display_text("".join(split[2:]))
+                                self.ui.display_text("".join(split[2:]))
                         else:
-                            self.display_text(text)
+                            self.ui.display_text(text)
                     else:
-                        self.display_text(text)
-            elif (self.dataStore / f"history/{self.historyNames[self.historySelect.currentIndex()]}.txt").is_file():
-                with open(self.dataStore / f"history/{self.historyNames[self.historySelect.currentIndex()]}.txt", "r") as file:
-                    self.chat_display.clear()
+                        self.ui.display_text(text)
+            elif (self.dataStore / f"history/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt").is_file():
+                with open(self.dataStore / f"history/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt", "r") as file:
+                    self.ui.chat_display.clear()
                     text = file.read()
                     split = self.splitText(text)
                     if len(split) >= 2:
                         if split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt is not None:
                             if split[1].strip() == self.hiddenDefaultPrompt.strip():
-                                self.display_text("".join(split[2:]))
+                                self.ui.display_text("".join(split[2:]))
                         else:
-                            self.display_text(text)
+                            self.ui.display_text(text)
                     else:
-                        self.display_text(text)
+                        self.ui.display_text(text)
             else:
-                self.chat_display.clear()
-            self.recolour_text()
-            self.prevChat = self.historyNames[self.historySelect.currentIndex()]
-            self.chat_display.setFocus()
-            self.recolour_text()
+                self.ui.chat_display.clear()
+            self.ui.recolour_text()
+            self.prevChat = self.ui.historyNames[self.ui.historySelect.currentIndex()]
+            self.ui.chat_display.setFocus()
+            self.ui.recolour_text()
 
         except Exception as e:
-            self.display_text("loadChat: ", str(e))
+            self.ui.display_text("loadChat: ", str(e))
 
     #delete the current chat
     def deleteChat(self):
         try:
-            nameToDelete = self.historySelect.currentText()
+            nameToDelete = self.ui.historySelect.currentText()
 
-            self.chat_display.clear()
+            self.ui.chat_display.clear()
             if (self.dataStore / f"history/{nameToDelete}.txt").is_file():
                 (self.dataStore / f"history/{nameToDelete}.txt").unlink()
             if (self.dataStore / f"history/temp{os.getpid()}/{nameToDelete}.txt").is_file():
                 self.deletingTemp = True
                 (self.dataStore / f"history/temp{os.getpid()}/{nameToDelete}.txt").unlink()
 
-            self.historyNames.remove(nameToDelete)
-            if len(self.historyNames) == 0:
+            self.ui.historyNames.remove(nameToDelete)
+            if len(self.ui.historyNames) == 0:
                 self.newChat()
                 pass
-            self.historySelect.clear()
-            self.historySelect.addItems(self.historyNames)
+            self.ui.historySelect.clear()
+            self.ui.historySelect.addItems(self.ui.historyNames)
 
         except Exception as e:
-            self.display_text("deleteChat: ", str(e))
+            self.ui.display_text("deleteChat: ", str(e))
 
     #create a new chat
     def newChat(self):
         try:
-            self.historyNames.insert(0, None)
+            self.ui.historyNames.insert(0, None)
             default = "new chat 1"
             i = 1
-            while default in self.historyNames:
+            while default in self.ui.historyNames:
                 default = f"{default[:-1]}{str(i)}"
                 i += 1
-            self.historyNames[0] = default
-            self.chat_display.clear()
-            self.historySelect.clear()
-            self.historySelect.addItems(self.historyNames)
+            self.ui.historyNames[0] = default
+            self.ui.chat_display.clear()
+            self.ui.historySelect.clear()
+            self.ui.historySelect.addItems(self.ui.historyNames)
 
             if self.settings.settings["enableSysPrompt"]:
                 if not self.settings.settings["hideSysPrompt"]:
-                    self.display_text(f"{self.delims["system"]} {self.settings.settings["sysPrompt"]}\n\n")
+                    self.ui.display_text(f"{self.delims["system"]} {self.settings.settings["sysPrompt"]}\n\n")
                 else:
                     self.hiddenDefaultPrompt = self.settings.settings["sysPrompt"]
                     #add checks to load chat and stuff for handling to prompt. save hidden like normal
                     #also hide/show if changed default prompt
 
-            self.display_text(f"{self.delims["user"]} ")
-            self.recolour_text()
-            self.chat_display.setFocus()
+            self.ui.display_text(f"{self.delims["user"]} ")
+            self.ui.recolour_text()
+            self.ui.chat_display.setFocus()
 
         except Exception as e:
-            self.display_text("newChat: ", str(e))
+            self.ui.display_text("newChat: ", str(e))
 
 
     #turn text box into formatted prompt, and generate it
@@ -346,7 +280,7 @@ class Chat(QMainWindow):
             return
         self.prompting = True
         try:
-            prompt = self.chat_display.toPlainText().strip()
+            prompt = self.ui.chat_display.toPlainText().strip()
             prompt = self.splitText(prompt)
 
             if len(prompt) < 2:
@@ -387,24 +321,24 @@ class Chat(QMainWindow):
             self.thread.start()
 
         except Exception as e:
-            self.display_text("prompt: ", str(e))
+            self.ui.display_text("prompt: ", str(e))
 
     def chunk(self, chunk):
         if chunk == "assis12":
-            self.display_text(f"\n\n{self.delims["assistant"]} ")
-            self.recolour_text()
+            self.ui.display_text(f"\n\n{self.delims["assistant"]} ")
+            self.ui.recolour_text()
         elif chunk == "usr12":
-            self.display_text(f"\n\n{self.delims["user"]} ")
-            self.recolour_text()
+            self.ui.display_text(f"\n\n{self.delims["user"]} ")
+            self.ui.recolour_text()
         else:
-            self.display_text(chunk)
+            self.ui.display_text(chunk)
 
     def generateResponse(self, history):
         try:
             self.settings.settings["prevModel"] = self.model
             self.settings.saveSettingsFile()
 
-            self.display_text(f"\n\n{self.delims["assistant"]} ")
+            self.ui.display_text(f"\n\n{self.delims["assistant"]} ")
             #self.recolour_text()
             stream = chat(
                 model=self.model,
@@ -412,22 +346,22 @@ class Chat(QMainWindow):
                 stream=True,
             )
             for chunk in stream:
-                self.display_text(chunk['message']['content'], end="")
-            self.display_text(f"\n\n{self.delims["user"]} ")
-            self.recolour_text()
+                self.ui.display_text(chunk['message']['content'], end="")
+            self.ui.display_text(f"\n\n{self.delims["user"]} ")
+            self.ui.recolour_text()
             self.prompting = False
 
         except Exception as e:
-            self.display_text("generateResponse: ", str(e))
+            self.ui.display_text("generateResponse: ", str(e))
 
 
     # change the model
     def changeModel(self):
         try:
-            self.model = self.modelSelect.currentText()
+            self.model = self.ui.modelSelect.currentText()
 
         except Exception as e:
-            self.display_text("changeModel: ", str(e))
+            self.ui.display_text("changeModel: ", str(e))
 
     #delete temp folder on end
     def exit_handler(self):
@@ -438,71 +372,6 @@ class Chat(QMainWindow):
                     child.unlink()
             path.rmdir()
 
-    # recolour all text in text box
-    def recolour_text(self):
-        try:
-            text = self.chat_display.toPlainText().lower()
-            cursor = self.chat_display.textCursor()
-            cursor.select(QTextCursor.Document)
-            cursor.setCharFormat(QTextCharFormat())  # reset formatting
-
-            pattern = re.compile(f"({self.delims["user"]}|{self.delims["assistant"]}|{self.delims["system"]})")
-            matches = list(pattern.finditer(text))
-
-            for i, match in enumerate(matches):
-                role_text = match.group().lower()
-                role_color = None
-                if self.delims["user"] in role_text:
-                    role_color = QColor("blue")
-                elif self.delims["assistant"] in role_text:
-                    role_color = QColor("green")
-                elif self.delims["system"] in role_text:
-                    role_color = QColor("gray")
-
-                start = match.start()
-                end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
-
-                fmt = QTextCharFormat()
-                fmt.setForeground(role_color)
-                cursor.setPosition(start)
-                cursor.setPosition(end, QTextCursor.KeepAnchor)
-                cursor.setCharFormat(fmt)
-
-        except Exception as e:
-            self.display_text("recolourText: ", str(e))
-
-    # display text in the text box
-    def display_text(self, text, end=""):
-        cursor = self.chat_display.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        cursor.insertText(text + end)
-        self.chat_display.ensureCursorVisible()
-
-    # handle shift-enter and recolour text while talking
-    def eventFilter(self, obj, event):
-        try:
-            if obj is self.chat_display and event.type() == event.KeyPress:
-                if event.key() == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
-                    self.prompt()
-                    return True
-                elif event.key() == Qt.Key_Space:
-                    self.recolour_text()
-            return super().eventFilter(obj, event)
-        except Exception as e:
-            print("eventFilter", str(e))
-
-    def moveEvent(self, event):
-        # Restart timer whenever moveEvent fires
-        self._move_resize_timer.start(500)
-        super().moveEvent(event)
-
-    def resizeEvent(self, event):
-        # Restart timer whenever resizeEvent fires
-        self._move_resize_timer.start(500)
-        super().resizeEvent(event)
-
-    def on_move_resize_finished(self):
-        self.moveOrResize.emit("movedOrResized")
 
 if __name__ == "__main__":
     Chat.Main()

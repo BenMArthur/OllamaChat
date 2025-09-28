@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="readme2">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +61,7 @@
       <recent name="C:\Users\4budg\PycharmProjects\Chat" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Chat">
+  <component name="RunManager" selected="Python.runChat">
     <configuration name="Chat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Chat" />
       <option name="ENV_FILES" value="" />
@@ -107,8 +108,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Chat" />
         <item itemvalue="Python.runChat" />
+        <item itemvalue="Python.Chat" />
       </list>
     </recent_temporary>
   </component>
@@ -224,7 +225,23 @@
       <option name="project" value="LOCAL" />
       <updated>1759005769830</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="fixed loading/saving bugs">
+      <option name="closed" value="true" />
+      <created>1759006998677</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1759006998677</updated>
+    </task>
+    <task id="LOCAL-00014" summary="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead">
+      <option name="closed" value="true" />
+      <created>1759051915198</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1759051915198</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -250,6 +267,8 @@
     <MESSAGE value="window now retains previous size and position" />
     <MESSAGE value="readme" />
     <MESSAGE value="readme2" />
-    <option name="LAST_COMMIT_MESSAGE" value="readme2" />
+    <MESSAGE value="fixed loading/saving bugs" />
+    <MESSAGE value="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead" />
+    <option name="LAST_COMMIT_MESSAGE" value="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead" />
   </component>
 </project>
