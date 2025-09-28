@@ -1,63 +1,30 @@
 import sys
 import re
 from pathlib import Path
-
-from PyQt5.Qt import Qt
-from PyQt5.QtGui import QTextCursor, QTextCharFormat, QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QComboBox, QHBoxLayout, QLineEdit, \
-    QPushButton, QTextEdit
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QThread, QTimer
-from ollama import chat
-from ollama import list as ollamaList
-from Settings import Settings
 import os
 import atexit
-import threading
-import time
+
+from ollama import chat
+from ollama import list as ollamaList
+
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QThread
+
+from Settings import Settings
 from UI import UI
-
-class PromptWorker(QObject):
-    finished = pyqtSignal()
-    progress = pyqtSignal(str)
-
-    def __init__(self, chat, history):
-        super().__init__()
-        self.chat = chat
-        self.history = history
-
-    def run(self):
-        try:
-            self.chat.settings.settings["prevModel"] = self.chat.model
-            self.chat.settings.saveSettingsFile()
-
-            self.progress.emit("assis12")
-            stream = chat(
-                model=self.chat.model,
-                messages=self.history,
-                stream=True,
-            )
-            for chunk in stream:
-                #self.chat.display_text(chunk['message']['content'], end="")
-                self.chunk = chunk['message']['content']
-                self.progress.emit(self.chunk)
-            self.progress.emit("usr12")
-            self.chat.prompting = False
-
-        except Exception as e:
-            self.chat.display_text("toggleSettings: ", str(e))
-        self.finished.emit()
+from PromptWorker import PromptWorker
 
 class Chat(QMainWindow):
 
     @staticmethod
-    def Main():
+    def Main(appName):
         app = QApplication(sys.argv)
-        Chat(app.primaryScreen().availableGeometry())
+        Chat(app.primaryScreen().availableGeometry(), appName)
         app.exec()
 
     newPrompt = pyqtSignal(str)
     moveOrResize = pyqtSignal(str)
-    def __init__(self, screen):
+    def __init__(self, screen, appName):
         super().__init__()
         self.threadpool = QThreadPool()
 
@@ -66,7 +33,8 @@ class Chat(QMainWindow):
         self.prevChat = None
         self.deletingTemp = False
         self.prompting = False
-        self.dataStore = Path.home() / 'AppData/Roaming/OChat'
+        self.appName = appName
+        self.dataStore = Path.home() / f"AppData/Roaming/{self.appName}"
         self.dataStore.mkdir(parents=True, exist_ok=True)
         atexit.register(self.exit_handler)
 
@@ -106,7 +74,7 @@ class Chat(QMainWindow):
                     "loadFixedModel": self.defaultModelRadioFixed.isChecked(),
                     "selectedModel": self.modelSelect.currentText()}"""
         try:
-            self.delims = {"user": f"{self.settings.settings["delimUser"]}:",
+            self.delims= {"user": f"{self.settings.settings["delimUser"]}:",
                            "assistant": f"{self.settings.settings["delimAssistant"]}:",
                            "system": f"{self.settings.settings["delimSystem"]}:"}
             self.ui.delims = self.delims
@@ -282,84 +250,25 @@ class Chat(QMainWindow):
         try:
             prompt = self.ui.chat_display.toPlainText().strip()
             prompt = self.splitText(prompt)
-
             if len(prompt) < 2:
                 return
-            history = []
-            for counter in range(0, len(prompt), 2):
-                if counter + 1 < len(prompt):
-                    role = None
-                    if prompt[counter].lower().startswith(self.delims["user"]):
-                        role = "user"
-                    elif prompt[counter].lower().startswith(self.delims["assistant"]):
-                        role = "assistant"
-                    elif prompt[counter].lower().startswith(self.delims["system"]):
-                        role = "system"
-                    foundImage = re.search(r"\"[A-Z]:[\\/].+\"", prompt[counter + 1])
-                    if foundImage:
-                        prompt[counter + 1] = prompt[counter + 1].replace(foundImage[0], "[image]")
-                        path = foundImage.group(0).strip('"')
-                    else:
-                        path = None
-                    if path:
-                        history.append({"role": role, "content": prompt[counter + 1].strip(), "images": [path]})
-                    else:
-                        history.append({"role": role, "content": prompt[counter + 1].strip()})
-
-
-            if self.hiddenDefaultPrompt and not history[0]["role"] == self.delims["system"][:-1]:
-                history.insert(0, {"role": "system", "content": self.hiddenDefaultPrompt})
-            #threading.Thread(target=self.generateResponse, args=[history], daemon=True).start()
             self.thread = QThread()
-            self.worker = PromptWorker(self, history)
+            self.worker = PromptWorker(self, prompt, self.delims, self.hiddenDefaultPrompt)
             self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
+            self.thread.started.connect(self.worker.prompt)
             self.worker.finished.connect(self.thread.quit)
             self.worker.finished.connect(self.worker.deleteLater)
             self.thread.finished.connect(self.thread.deleteLater)
-            self.worker.progress.connect(self.chunk)
+            self.worker.progress.connect(self.ui.chunk)
+            self.worker.reGen.connect(self.ui.deleteForRegen)
             self.thread.start()
-
         except Exception as e:
-            self.ui.display_text("prompt: ", str(e))
-
-    def chunk(self, chunk):
-        if chunk == "assis12":
-            self.ui.display_text(f"\n\n{self.delims["assistant"]} ")
-            self.ui.recolour_text()
-        elif chunk == "usr12":
-            self.ui.display_text(f"\n\n{self.delims["user"]} ")
-            self.ui.recolour_text()
-        else:
-            self.ui.display_text(chunk)
-
-    def generateResponse(self, history):
-        try:
-            self.settings.settings["prevModel"] = self.model
-            self.settings.saveSettingsFile()
-
-            self.ui.display_text(f"\n\n{self.delims["assistant"]} ")
-            #self.recolour_text()
-            stream = chat(
-                model=self.model,
-                messages=history,
-                stream=True,
-            )
-            for chunk in stream:
-                self.ui.display_text(chunk['message']['content'], end="")
-            self.ui.display_text(f"\n\n{self.delims["user"]} ")
-            self.ui.recolour_text()
-            self.prompting = False
-
-        except Exception as e:
-            self.ui.display_text("generateResponse: ", str(e))
-
+            self.ui.display_text("prompt main: ", str(e))
 
     # change the model
     def changeModel(self):
         try:
             self.model = self.ui.modelSelect.currentText()
-
         except Exception as e:
             self.ui.display_text("changeModel: ", str(e))
 

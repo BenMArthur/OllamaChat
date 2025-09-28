@@ -1,5 +1,3 @@
-import queue
-
 from Chat import Chat
 
 import os
@@ -7,13 +5,12 @@ import sys
 import winshell
 from win32com.client import Dispatch
 import keyboard
-from threading import Lock
 
 # Function to add the program to Windows startup
 def addStartup():
     startup = winshell.startup()
     exe_path = sys.executable
-    shortcut_path = os.path.join(startup, "OChat.lnk")
+    shortcut_path = os.path.join(startup, f"{appName}.lnk")
     if not os.path.exists(shortcut_path):
         shell = Dispatch('WScript.Shell')
         shortcut = shell.CreateShortCut(shortcut_path)
@@ -23,25 +20,15 @@ def addStartup():
         shortcut.save()
 
 def run():
-    if run_lock.acquire(blocking=False):
-        try:
-            Chat.Main()
-        finally:
-            run_lock.release()
+    Chat.Main(appName)
+import ctypes
+appName = "ollamaChat"
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appName)
 
-# Add to startup and set hotkey
 addStartup()
-run_lock = Lock()
-
-"""tasks = queue.Queue()
-def schedule_run():
-    tasks.put(run)
-keyboard.add_hotkey('alt+space', schedule_run)
-while True:
-    func = tasks.get()  # blocks until something scheduled
-    func()"""
 keyboard.add_hotkey('alt+space', run)
 keyboard.wait()
+#fix sys prompt to always use if no other
+#change delims when they are changed
 
-
-#pyinstaller --onefile --noconsole --name OChat src/runChat.py
+#pyinstaller --onefile --noconsole --name OllamaChat src/runChat.py

@@ -1,10 +1,11 @@
 import re
-import sys
 
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import pyqtSignal, QTimer
-from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor
+from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor, QIcon
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, QTextEdit
+
+from LoadImage import resource_path
 
 
 class UI(QMainWindow):
@@ -16,6 +17,7 @@ class UI(QMainWindow):
         self.dataStore = dataStore
 
         self.setWindowTitle("Chat")
+        self.setWindowIcon(QIcon(resource_path("../img/chat.png")))
         self.resize(size[0], size[1])
         self.move(pos[0], pos[1])
         central = QWidget()
@@ -124,6 +126,22 @@ class UI(QMainWindow):
         cursor.insertText(text + end)
         self.chat_display.ensureCursorVisible()
 
+    def chunk(self, chunk):
+        if chunk == "assis12":
+            self.display_text(f"\n\n{self.delims["assistant"]} ")
+            self.recolour_text()
+        elif chunk == "usr12":
+            self.display_text(f"\n\n{self.delims["user"]} ")
+            self.recolour_text()
+        else:
+            self.display_text(chunk)
+
+    def deleteForRegen(self):
+        text = re.split(f"({self.delims["user"]}|{self.delims["assistant"]}|{self.delims["system"]})", self.chat_display.toPlainText())[:-4]
+        text[-1] = text[-1][:-2]
+        self.chat_display.clear()
+        self.display_text("".join(text))
+
     # handle shift-enter and recolour text while talking
     def eventFilter(self, obj, event):
         try:
@@ -149,4 +167,3 @@ class UI(QMainWindow):
 
     def on_move_resize_finished(self):
         self.moveOrResize.emit("movedOrResized")
-

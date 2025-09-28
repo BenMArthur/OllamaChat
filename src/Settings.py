@@ -1,5 +1,6 @@
 import threading
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QTextEdit, QComboBox, QLabel, QLineEdit, QCheckBox, QRadioButton, QPushButton
@@ -7,6 +8,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import pyqtSignal
 from ollama import list as ollamaList
 import json
+
+from LoadImage import resource_path
 
 
 class Settings(QWidget):
@@ -22,6 +25,7 @@ class Settings(QWidget):
         self.settings = self.defaults
 
         self.setWindowTitle("Settings")
+        self.setWindowIcon(QIcon(resource_path("../img/settings.png")))
 
         def delim():
             delimLayout = QVBoxLayout()

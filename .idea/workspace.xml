@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="moved ui back into ui, threading seems to work">
+      <change afterPath="$PROJECT_DIR$/src/LoadImage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/PromptWorker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/UI.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/runChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/runChat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -241,7 +246,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759051915198</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="moved ui back into ui, threading seems to work">
+      <option name="closed" value="true" />
+      <created>1759053141418</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1759053141418</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -269,6 +282,7 @@
     <MESSAGE value="readme2" />
     <MESSAGE value="fixed loading/saving bugs" />
     <MESSAGE value="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead" />
-    <option name="LAST_COMMIT_MESSAGE" value="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead" />
+    <MESSAGE value="moved ui back into ui, threading seems to work" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved ui back into ui, threading seems to work" />
   </component>
 </project>
