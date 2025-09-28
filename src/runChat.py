@@ -1,4 +1,5 @@
-import keyboard
+import queue
+
 from Chat import Chat
 
 import os
@@ -24,14 +25,21 @@ def addStartup():
 def run():
     if run_lock.acquire(blocking=False):
         try:
-            Chat()
+            Chat.Main()
         finally:
             run_lock.release()
 
 # Add to startup and set hotkey
 addStartup()
-
 run_lock = Lock()
+
+"""tasks = queue.Queue()
+def schedule_run():
+    tasks.put(run)
+keyboard.add_hotkey('alt+space', schedule_run)
+while True:
+    func = tasks.get()  # blocks until something scheduled
+    func()"""
 keyboard.add_hotkey('alt+space', run)
 keyboard.wait()
 
