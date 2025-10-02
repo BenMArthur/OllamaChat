@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from ollama import chat
 import re
+from pathlib import Path
 
 
 class PromptWorker(QObject):
@@ -18,6 +19,7 @@ class PromptWorker(QObject):
     def prompt(self):
         try:
             history = []
+            missingImages = False
             for counter in range(0, len(self.splitPrompt), 2):
                 if counter + 1 < len(self.splitPrompt):
                     role = None
@@ -28,10 +30,12 @@ class PromptWorker(QObject):
                     elif self.splitPrompt[counter].lower().startswith(self.delims["system"]):
                         role = "system"
 
-                    split = re.split(r"[\"\']", self.splitPrompt[counter + 1])
-                    images = []
-                    for x in split:
-                        images += re.findall(r"\w+:[/\\].+\.[a-zA-Z]+", x)
+                    images = re.findall(r"[A-za-z]:[\\/][^:]+.(?:png|jpg|jpeg|webp)", self.splitPrompt[counter + 1], flags=re.IGNORECASE)
+                    if len(images)>0:
+                        for pair in [(image, Path(image).is_file()) for image in images]:
+                            if not pair[1]:
+                                missingImages = True
+                                self.progress.emit(f"\nimage not found - {pair[0]}")
 
                     if counter + 1 == len(self.splitPrompt) - 1 and self.splitPrompt[-1] == "":
                         history = history[:-1]
@@ -42,6 +46,10 @@ class PromptWorker(QObject):
                         else:
                             history.append({"role": role, "content": self.splitPrompt[counter + 1].strip()})
 
+            if missingImages:
+                self.chat.prompting = False
+                self.finished.emit()
+                return
 
             if self.hiddenDefaultPrompt and not history[0]["role"] == self.delims["system"][:-1]:
                 history.insert(0, {"role": "system", "content": self.hiddenDefaultPrompt})

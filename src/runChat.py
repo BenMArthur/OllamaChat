@@ -1,3 +1,5 @@
+import threading
+
 from Chat import Chat
 
 import os
@@ -17,6 +19,7 @@ def addStartup():
         shortcut.Targetpath = exe_path
         shortcut.WorkingDirectory = os.path.dirname(exe_path)
         shortcut.IconLocation = exe_path
+        shortcut.WindowStyle = 7
         shortcut.save()
 
 def run():
@@ -28,7 +31,11 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appName)
 addStartup()
 keyboard.add_hotkey('alt+space', run)
 keyboard.wait()
+
+#add comments
+#close with
 #fix sys prompt to always use if no other
 #change delims when they are changed
+#fix creation of chats: multiple user delims, if that happens again
 
-#pyinstaller --onefile --noconsole --name OllamaChat src/runChat.py
+#pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py

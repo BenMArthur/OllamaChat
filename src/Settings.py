@@ -17,67 +17,61 @@ class Settings(QWidget):
 
     def __init__(self, dataStore, screen):
         super().__init__()
-        layout = QVBoxLayout()
         self.dataStore = dataStore
         self.defaults = {"delimUser": "user", "delimAssistant": "assistant", "delimSystem": "system",
                         "enableSysPrompt": False, "hideSysPrompt": False, "sysPrompt": "", "loadFixedModel": False,
                         "selectedModel": "", "prevModel": "", "pos": (screen.width()//2-300, screen.height()//2-150), "size": (600, 300)}
         self.settings = self.defaults
 
+        layout = QVBoxLayout()
         self.setWindowTitle("Settings")
-        self.setWindowIcon(QIcon(resource_path("../img/settings.png")))
+        self.setWindowIcon(QIcon(resource_path("img/settings.png")))
 
+        #section of settings concerning the delimiters
         def delim():
+            def delimItem(text):
+                tempLayout = QHBoxLayout()
+                label = QLabel(text)
+                input = QLineEdit()
+                input.setFixedWidth(125)
+                post = QLabel(":")
+                tempLayout.addWidget(label)
+                tempLayout.addWidget(input)
+                tempLayout.addWidget(post)
+                tempLayout.addStretch(1)
+                delimLayout.addLayout(tempLayout)
+
+                return tempLayout, input
+
             delimLayout = QVBoxLayout()
+
             self.delimLabel = QLabel("Delimiters: \n     (\":\" automatically inserted at end, capitalisation not important)")
             delimLayout.addWidget(self.delimLabel)
 
-            delimUserLayout = QHBoxLayout()
-            self.delimUserLabel = QLabel("     Prompt/You:")
-            self.delimUserInput = QLineEdit()
-            self.delimUserInput.setFixedWidth(125)
-            self.delimUserPost = QLabel(":")
-            delimUserLayout.addWidget(self.delimUserLabel)
-            delimUserLayout.addWidget(self.delimUserInput)
-            delimUserLayout.addWidget(self.delimUserPost)
-            delimUserLayout.addStretch(1)
-
-            delimAssistantLayout = QHBoxLayout()
-            self.delimAssistantLabel = QLabel("     Response/AI:")
-            self.delimAssistantInput = QLineEdit()
-            self.delimAssistantInput.setFixedWidth(125)
-            self.delimAssistantPost = QLabel(":")
-            delimAssistantLayout.addWidget(self.delimAssistantLabel)
-            delimAssistantLayout.addWidget(self.delimAssistantInput)
-            delimAssistantLayout.addWidget(self.delimAssistantPost)
-            delimAssistantLayout.addStretch(1)
-
-            delimSystemLayout = QHBoxLayout()
-            self.delimSystemLabel = QLabel("     System:")
-            self.delimSystemInput = QLineEdit()
-            self.delimSystemInput.setFixedWidth(125)
-            self.delimSystemPost = QLabel(":")
-            delimSystemLayout.addWidget(self.delimSystemLabel)
-            delimSystemLayout.addWidget(self.delimSystemInput)
-            delimSystemLayout.addWidget(self.delimSystemPost)
-            delimSystemLayout.addStretch(1)
-
-            delimLayout.addLayout(delimUserLayout)
-            delimLayout.addLayout(delimAssistantLayout)
-            delimLayout.addLayout(delimSystemLayout)
+            delimUserLayout, self.delimUserInput = delimItem("     Prompt/You:")
+            delimAssistantLayout, self.delimAssistantInput = delimItem("     Response/AI:")
+            delimSystemLayout, self.delimSystemInput = delimItem("     System:")
 
             return delimLayout
-        delimLayout = delim()
+        layout.addLayout(delim())
 
+        #default system prompt section
         def sysPrompt():
             SysPromptLayout = QVBoxLayout()
-            self.sysPromptLabel = QLabel("\nDefault Sytem prompt: \n     (Not useful for some models i.e. deepseek)")
+            self.sysPromptLabel = QLabel("\nDefault Sytem prompt: \n     (Not useful for some models i.e. deepseek) \n     (added at the start of any chat without explicit sysPrompt)")
             SysPromptLayout.addWidget(self.sysPromptLabel)
 
-            self.enableSysPrompt = QCheckBox("Enable default system prompt", self)
-            SysPromptLayout.addWidget(self.enableSysPrompt)
-            self.hideSysPrompt = QCheckBox("Hide default system prompt", self)
-            SysPromptLayout.addWidget(self.hideSysPrompt)
+            def checkItem(text):
+                layout = QHBoxLayout()
+                layout.addWidget(QLabel("   "))
+                box = QCheckBox(text, self)
+                layout.addWidget(box)
+                layout.addStretch(1)
+                SysPromptLayout.addLayout(layout)
+                return box
+
+            self.enableSysPrompt = checkItem("Enable default system prompt")
+            self.hideSysPrompt = checkItem("Hide default system prompt")
 
             sysPromptInputLayout = QHBoxLayout()
             SysPromptLabelLayout = QVBoxLayout()
@@ -86,7 +80,6 @@ class Settings(QWidget):
             self.sysPromptInput.setFixedHeight(100)
             self.sysPromptInput.setAcceptRichText(False)
             self.sysPromptInput.setLineWrapMode(QTextEdit.WidgetWidth)
-
             SysPromptLabelLayout.addWidget(self.sysPromptLabel)
             SysPromptLabelLayout.addStretch(1)
             sysPromptInputLayout.addLayout(SysPromptLabelLayout)
@@ -94,8 +87,9 @@ class Settings(QWidget):
             SysPromptLayout.addLayout(sysPromptInputLayout)
 
             return SysPromptLayout
-        SysPromptLayout = sysPrompt()
+        layout.addLayout(sysPrompt())
 
+        #default model section
         def defaultModel():
             defaultModelLayout = QVBoxLayout()
             self.defaultModelLabel = QLabel("\nWhat model will be selected when window is opened:")
@@ -103,6 +97,7 @@ class Settings(QWidget):
 
             self.defaultModelRadioVar = QRadioButton("Model used in previous prompt")
             defaultModelLayout.addWidget(self.defaultModelRadioVar)
+
             defaultModelRadioFixedLayout = QHBoxLayout()
             self.defaultModelRadioFixed = QRadioButton("Fixed model:")
             self.models = [str(model.model) for model in ollamaList().models]
@@ -112,27 +107,31 @@ class Settings(QWidget):
             defaultModelRadioFixedLayout.addWidget(self.defaultModelRadioFixed)
             defaultModelRadioFixedLayout.addWidget(self.modelSelect)
             defaultModelRadioFixedLayout.addStretch(1)
+
             defaultModelLayout.addLayout(defaultModelRadioFixedLayout)
 
             return defaultModelLayout
-        defaultModelLayout = defaultModel()
+        layout.addLayout(defaultModel())
 
-        submissionLayout = QHBoxLayout()
-        submissionLayout.addStretch(1)
-        self.resetButton = QPushButton(text="Reset to defaults")
-        self.resetButton.clicked.connect(self.reset)
-        submissionLayout.addWidget(self.resetButton)
-        self.submissionButton = QPushButton(text="Save changes")
-        self.submissionButton.clicked.connect(self.submit)
-        submissionLayout.addWidget(self.submissionButton)
+        #create the reset and submit buttons
+        def bottom():
+            submissionLayout = QHBoxLayout()
+            submissionLayout.addStretch(1)
 
+            self.resetButton = QPushButton(text="Reset to defaults")
+            self.resetButton.clicked.connect(self.reset)
+            submissionLayout.addWidget(self.resetButton)
+
+            self.submissionButton = QPushButton(text="Save changes")
+            self.submissionButton.clicked.connect(self.submit)
+            submissionLayout.addWidget(self.submissionButton)
+
+            return submissionLayout
+        layout.addLayout(bottom())
 
         self.setLayout(layout)
-        layout.addLayout(delimLayout)
-        layout.addLayout(SysPromptLayout)
-        layout.addLayout(defaultModelLayout)
-        layout.addLayout(submissionLayout)
-        layout.addStretch(1)
+        #just locks size, cannot get smaller than elements
+        self.setFixedSize(0,0)
         threading.Thread(target=self.loadSettings(True)).start()
 
     def submit(self):
@@ -222,5 +221,4 @@ class Settings(QWidget):
     def movedOrResized(self, pos, size):
         self.settings["pos"] = (pos.x(), pos.y())
         self.settings["size"] = (size.width(), size.height())
-        #print(self.settings["pos"], self.settings["size"])
         self.saveSettingsFile()

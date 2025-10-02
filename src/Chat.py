@@ -2,28 +2,29 @@ import sys
 import re
 from pathlib import Path
 import os
-import atexit
 
-from ollama import chat
+from PyQt5.QtGui import QFont
 from ollama import list as ollamaList
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QObject, QThreadPool, pyqtSignal, QThread
+from PyQt5.QtCore import QThreadPool, QThread
 
 from Settings import Settings
 from UI import UI
 from PromptWorker import PromptWorker
+
 
 class Chat(QMainWindow):
 
     @staticmethod
     def Main(appName):
         app = QApplication(sys.argv)
+        font = QFont("Arial", 11)  # You can change font family and size here
+        app.setFont(font)
+
         Chat(app.primaryScreen().availableGeometry(), appName)
         app.exec()
 
-    newPrompt = pyqtSignal(str)
-    moveOrResize = pyqtSignal(str)
     def __init__(self, screen, appName):
         super().__init__()
         self.threadpool = QThreadPool()
@@ -36,7 +37,6 @@ class Chat(QMainWindow):
         self.appName = appName
         self.dataStore = Path.home() / f"AppData/Roaming/{self.appName}"
         self.dataStore.mkdir(parents=True, exist_ok=True)
-        atexit.register(self.exit_handler)
 
         self.settings = Settings(self.dataStore, screen)
         self.settings.submitted.connect(self.fetchSettings)
@@ -61,9 +61,11 @@ class Chat(QMainWindow):
         #emitters from UI
         self.ui.newPrompt.connect(self.prompt)
         self.ui.moveOrResize.connect(lambda: self.settings.movedOrResized(self.ui.pos(), self.ui.size()))
+        #self.ui.moveOrResize.connect(self.settings.movedOrResized)
 
         self.fetchSettings()
 
+        self.prevChat = self.ui.historyInput.text()
         self.newChat()
 
 
@@ -104,13 +106,13 @@ class Chat(QMainWindow):
             with open(self.dataStore / f"history/{newName}.txt", "w") as file:
                 file.write(ToWrite)
 
+            self.saveTemp()
             self.ui.historySelect.clear()
             self.ui.historyNames[currentIndex] = newName
             self.ui.historySelect.addItems(self.ui.historyNames)
             self.ui.historyInput.setText(newName)
             self.ui.historySelect.setCurrentIndex(currentIndex)
 
-            self.saveTemp()
 
         except Exception as e:
             self.ui.display_text("saveChat: ", str(e))
@@ -118,11 +120,13 @@ class Chat(QMainWindow):
     #save chat as a temporary chat when switching away
     def saveTemp(self):
         try:
+            if self.prevChat is None:
+                return
             (self.dataStore / f"history/temp{os.getpid()}").mkdir(parents=True, exist_ok=True)
 
-            ToWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
+            toWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
             with open(self.dataStore / f"history/temp{os.getpid()}/{self.prevChat}.txt", "w") as file:
-                file.write(ToWrite)
+                file.write(toWrite)
 
         except Exception as e:
             self.ui.display_text("saveTemp: ", str(e))
@@ -215,6 +219,8 @@ class Chat(QMainWindow):
     #create a new chat
     def newChat(self):
         try:
+
+            self.saveTemp()
             self.ui.historyNames.insert(0, None)
             default = "new chat 1"
             i = 1
@@ -223,8 +229,11 @@ class Chat(QMainWindow):
                 i += 1
             self.ui.historyNames[0] = default
             self.ui.chat_display.clear()
+            self.ui.historySelect.blockSignals(True)
             self.ui.historySelect.clear()
             self.ui.historySelect.addItems(self.ui.historyNames)
+            self.ui.historyInput.setText(self.ui.historySelect.currentText())
+            self.ui.historySelect.blockSignals(False)
 
             if self.settings.settings["enableSysPrompt"]:
                 if not self.settings.settings["hideSysPrompt"]:
@@ -237,18 +246,18 @@ class Chat(QMainWindow):
             self.ui.display_text(f"{self.delims["user"]} ")
             self.ui.recolour_text()
             self.ui.chat_display.setFocus()
+            self.prevChat = self.ui.historyInput.text()
 
         except Exception as e:
             self.ui.display_text("newChat: ", str(e))
 
 
     #turn text box into formatted prompt, and generate it
-    def prompt(self):
+    def prompt(self, prompt):
         if self.prompting:
             return
         self.prompting = True
         try:
-            prompt = self.ui.chat_display.toPlainText().strip()
             prompt = self.splitText(prompt)
             if len(prompt) < 2:
                 return
@@ -272,14 +281,6 @@ class Chat(QMainWindow):
         except Exception as e:
             self.ui.display_text("changeModel: ", str(e))
 
-    #delete temp folder on end
-    def exit_handler(self):
-        path = self.dataStore / f"history/temp{os.getpid()}"
-        if path.is_dir():
-            for child in path.iterdir():
-                if child.is_file():
-                    child.unlink()
-            path.rmdir()
 
 
 if __name__ == "__main__":
