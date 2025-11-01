@@ -9,9 +9,10 @@ class PromptWorker(QObject):
     progress = pyqtSignal(str)
     reGen = pyqtSignal(str)
 
-    def __init__(self, chat, splitPrompt, delims, hiddenDefaultPrompt):
+    def __init__(self, model, splitPrompt, delims, hiddenDefaultPrompt):
         super().__init__()
-        self.chat = chat
+        self.model = model
+        self.stopGeneration = False
         self.splitPrompt = splitPrompt
         self.delims = delims
         self.hiddenDefaultPrompt = hiddenDefaultPrompt
@@ -47,7 +48,6 @@ class PromptWorker(QObject):
                             history.append({"role": role, "content": self.splitPrompt[counter + 1].strip()})
 
             if missingImages:
-                self.chat.prompting = False
                 self.finished.emit()
                 return
 
@@ -55,24 +55,30 @@ class PromptWorker(QObject):
                 history.insert(0, {"role": "system", "content": self.hiddenDefaultPrompt})
             self.generateResponse(history)
         except Exception as e:
-            self.chat.ui.chat_display("prompt worker: ", str(e))
+            print("prompt worker: ", str(e))
 
     def generateResponse(self, history):
         try:
-            self.chat.settings.settings["prevModel"] = self.chat.model
-            self.chat.settings.saveSettingsFile()
-
             self.progress.emit("assis12")
             stream = chat(
-                model=self.chat.model,
+                model=self.model,
                 messages=history,
                 stream=True,
             )
             for chunk in stream:
+                if self.stopGeneration:
+                    stream.close()
+                    break
                 self.progress.emit(chunk['message']['content'])
-            self.progress.emit("usr12")
-            self.chat.prompting = False
+
+            if self.stopGeneration:
+                self.stopGeneration = False
+            else:
+                self.progress.emit("usr12")
 
         except Exception as e:
-            self.chat.display_text("toggleSettings: ", str(e))
+            self.progress.emit(f"gen response: {str(e)}")
         self.finished.emit()
+
+    def endGeneration(self):
+        self.stopGeneration = True

@@ -42,7 +42,7 @@ class Chat(QMainWindow):
         self.settings.submitted.connect(self.fetchSettings)
         if self.settings.settings["loadFixedModel"]:
             self.model = self.settings.settings["selectedModel"]
-        elif self.settings.settings["prevModel"] != "":
+        elif self.settings.settings["prevModel"] != "" and self.settings.settings["prevModel"] in models:
             self.model = self.settings.settings["prevModel"]
         else:
             self.model = models[0]
@@ -255,6 +255,7 @@ class Chat(QMainWindow):
     #turn text box into formatted prompt, and generate it
     def prompt(self, prompt):
         if self.prompting:
+            self.worker.endGeneration()
             return
         self.prompting = True
         try:
@@ -262,17 +263,24 @@ class Chat(QMainWindow):
             if len(prompt) < 2:
                 return
             self.thread = QThread()
-            self.worker = PromptWorker(self, prompt, self.delims, self.hiddenDefaultPrompt)
+            self.worker = PromptWorker(self.model, prompt, self.delims, self.hiddenDefaultPrompt)
             self.worker.moveToThread(self.thread)
             self.thread.started.connect(self.worker.prompt)
             self.worker.finished.connect(self.thread.quit)
             self.worker.finished.connect(self.worker.deleteLater)
             self.thread.finished.connect(self.thread.deleteLater)
+            self.thread.finished.connect(self.endPrompt)
             self.worker.progress.connect(self.ui.chunk)
             self.worker.reGen.connect(self.ui.deleteForRegen)
             self.thread.start()
+
+            self.settings.settings["prevModel"] = self.model
+            self.settings.saveSettingsFile()
         except Exception as e:
             self.ui.display_text("prompt main: ", str(e))
+
+    def endPrompt(self):
+        self.prompting = False
 
     # change the model
     def changeModel(self):

@@ -1,5 +1,3 @@
-import threading
-
 from Chat import Chat
 
 import os
@@ -36,6 +34,7 @@ keyboard.wait()
 #close with
 #fix sys prompt to always use if no other
 #change delims when they are changed
+
 #fix creation of chats: multiple user delims, if that happens again
 
 #pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py
