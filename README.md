@@ -21,14 +21,14 @@ This is the format used:
 ```
 
 ## Saving Chats
-- all chats are temporarily saved until you delete them or close the window \
+- all chats are temporarily saved until you delete them or close the window
 - to save chats between sessions you must press the save button  
 - edits will also be saved temporarily, but to lock in those edits you must press the save button again.
 
 
 ## Instalation
 ### Downloading
-1. You can download the .exe the realeases here
+1. You can download the .exe from the realeases here
 2. or you can clone the src files, install all the dependencies in a venv, and build it yourself using:
 ```pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py```
 
