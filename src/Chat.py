@@ -1,5 +1,6 @@
 import sys
 import re
+import time
 from pathlib import Path
 import os
 
@@ -19,7 +20,7 @@ class Chat(QMainWindow):
     @staticmethod
     def Main(appName):
         app = QApplication(sys.argv)
-        font = QFont("Arial", 11)  # You can change font family and size here
+        font = QFont("Arial", 11)
         app.setFont(font)
 
         Chat(app.primaryScreen().availableGeometry(), appName)
@@ -31,6 +32,7 @@ class Chat(QMainWindow):
 
         models = [str(model.model) for model in ollamaList().models]
         self.hiddenDefaultPrompt = None
+        self.delims = None
         self.prevChat = None
         self.deletingTemp = False
         self.prompting = False
@@ -76,13 +78,52 @@ class Chat(QMainWindow):
                     "loadFixedModel": self.defaultModelRadioFixed.isChecked(),
                     "selectedModel": self.modelSelect.currentText()}"""
         try:
-            self.delims= {"user": f"{self.settings.settings["delimUser"]}:",
+            newDelims = {"user": f"{self.settings.settings["delimUser"]}:",
                            "assistant": f"{self.settings.settings["delimAssistant"]}:",
                            "system": f"{self.settings.settings["delimSystem"]}:"}
-            self.ui.delims = self.delims
+            if self.delims is None:
+                self.delims = newDelims
+                self.ui.delims = newDelims
+            else:
+                self.changeDelims(newDelims)
 
         except Exception as e:
             self.ui.display_text("fetchSettings: ", str(e))
+
+    def changeDelims(self, newDelims):
+        try:
+            changes = []
+            for key in newDelims.keys():
+                if newDelims[key] != self.delims[key]:
+                    changes.append([self.delims[key], newDelims[key]])
+            if len(changes) == 0:
+                return
+
+            currentText = self.ui.chat_display.toPlainText()
+            for i in range(len(changes)):
+                currentText = currentText.replace(changes[i][0], changes[i][1])
+
+            self.ui.chat_display.clear()
+            self.ui.display_text(currentText)
+            self.delims = newDelims
+            self.ui.delims = self.delims
+            self.ui.recolour_text()
+
+            permSaves = self.dataStore / f"history/"
+            tempSaves = self.dataStore / f"history/temp{os.getpid()}"
+
+            for directory in [permSaves, tempSaves]:
+                for path in directory.iterdir():
+                    if path.is_file():
+                        with open(path, "r", encoding="utf-8") as file:
+                            text = file.read()
+                        for change in changes:
+                            text = text.replace(change[0], change[1])
+                        with open(path, "w", encoding="utf-8") as file:
+                            file.write(text)
+
+        except Exception as e:
+            self.ui.display_text("changeDelims: ", str(e))
 
     #save chat permenantly
     def saveChat(self):
@@ -103,7 +144,8 @@ class Chat(QMainWindow):
                     pass
 
             ToWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
-            with open(self.dataStore / f"history/{newName}.txt", "w") as file:
+            #ToWrite = self.ui.chat_display.toPlainText()
+            with open(self.dataStore / f"history/{newName}.txt", "w", encoding="utf-8") as file:
                 file.write(ToWrite)
 
             self.saveTemp()
@@ -125,7 +167,8 @@ class Chat(QMainWindow):
             (self.dataStore / f"history/temp{os.getpid()}").mkdir(parents=True, exist_ok=True)
 
             toWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
-            with open(self.dataStore / f"history/temp{os.getpid()}/{self.prevChat}.txt", "w") as file:
+            #toWrite = self.ui.chat_display.toPlainText()
+            with open(self.dataStore / f"history/temp{os.getpid()}/{self.prevChat}.txt", "w", encoding="utf-8") as file:
                 file.write(toWrite)
 
         except Exception as e:
@@ -153,33 +196,34 @@ class Chat(QMainWindow):
     #load the chat selected in the dropdown
     def loadChat(self):
         try:
+            if self.prompting:
+                self.worker.endGeneration()
+                time.sleep(0.001)
             if self.prevChat is not None and not self.deletingTemp:
                 self.saveTemp()
             self.deletingTemp = False
 
             self.ui.historyInput.setText(self.ui.historyNames[self.ui.historySelect.currentIndex()])
             if (self.dataStore / f"history/temp{os.getpid()}/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt").is_file():
-                with open(self.dataStore / f"history/temp{os.getpid()}/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt", "r") as file:
+                with open(self.dataStore / f"history/temp{os.getpid()}/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt", "r", encoding="utf-8") as file:
                     self.ui.chat_display.clear()
                     text = file.read()
                     split = self.splitText(text)
                     if len(split) >= 2:
-                        if split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt is not None:
-                            if split[1].strip() == self.hiddenDefaultPrompt.strip():
-                                self.ui.display_text("".join(split[2:]))
+                        if split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt is not None and split[1].strip() == self.hiddenDefaultPrompt.strip():
+                            self.ui.display_text("".join(split[2:]))
                         else:
                             self.ui.display_text(text)
                     else:
                         self.ui.display_text(text)
             elif (self.dataStore / f"history/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt").is_file():
-                with open(self.dataStore / f"history/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt", "r") as file:
+                with open(self.dataStore / f"history/{self.ui.historyNames[self.ui.historySelect.currentIndex()]}.txt", "r", encoding="utf-8") as file:
                     self.ui.chat_display.clear()
                     text = file.read()
                     split = self.splitText(text)
                     if len(split) >= 2:
-                        if split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt is not None:
-                            if split[1].strip() == self.hiddenDefaultPrompt.strip():
-                                self.ui.display_text("".join(split[2:]))
+                        if split[0].startswith(self.delims["system"]) and self.hiddenDefaultPrompt is not None and split[1].strip() == self.hiddenDefaultPrompt.strip():
+                            self.ui.display_text("".join(split[2:]))
                         else:
                             self.ui.display_text(text)
                     else:
@@ -197,6 +241,8 @@ class Chat(QMainWindow):
     #delete the current chat
     def deleteChat(self):
         try:
+            if self.prompting:
+                self.worker.endGeneration()
             nameToDelete = self.ui.historySelect.currentText()
 
             self.ui.chat_display.clear()
@@ -219,7 +265,8 @@ class Chat(QMainWindow):
     #create a new chat
     def newChat(self):
         try:
-
+            if self.prompting:
+                self.worker.endGeneration()
             self.saveTemp()
             self.ui.historyNames.insert(0, None)
             default = "new chat 1"

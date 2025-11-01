@@ -31,10 +31,6 @@ keyboard.add_hotkey('alt+space', run)
 keyboard.wait()
 
 #add comments
-#close with
-#fix sys prompt to always use if no other
-#change delims when they are changed
-
-#fix creation of chats: multiple user delims, if that happens again
+#close with alt+space
 
 #pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py

@@ -96,35 +96,41 @@ class UI(QMainWindow):
     # recolour all text in text box
     def recolour_text(self):
         try:
-            text = self.chat_display.toPlainText().lower()
+            def py_to_qt_index(s, py_index):
+                # utf-16-le: 2 bytes per code unit; subtract BOM
+                return len(s[:py_index].encode("utf-16-le")) // 2
+
+            text = self.chat_display.toPlainText()
             cursor = self.chat_display.textCursor()
             cursor.select(QTextCursor.Document)
-            cursor.setCharFormat(QTextCharFormat())  # reset formatting
+            cursor.setCharFormat(QTextCharFormat())
 
-            pattern = re.compile(f"({self.delims["user"]}|{self.delims["assistant"]}|{self.delims["system"]})")
-            matches = list(pattern.finditer(text))
+            pattern = re.compile(f"({self.delims['user']}|{self.delims['assistant']}|{self.delims['system']})",
+                                 re.IGNORECASE)
+            matches = list(pattern.finditer(text.lower()))
 
             for i, match in enumerate(matches):
                 role_text = match.group().lower()
-                role_color = None
                 if self.delims["user"] in role_text:
                     role_color = QColor("blue")
                 elif self.delims["assistant"] in role_text:
                     role_color = QColor("green")
-                elif self.delims["system"] in role_text:
+                else:
                     role_color = QColor("gray")
 
-                start = match.start()
-                end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+                start = py_to_qt_index(text, match.start())
+                end = py_to_qt_index(text, matches[i + 1].start()) if i + 1 < len(matches) else len(
+                    text.encode("utf-16-le")) // 2
 
                 fmt = QTextCharFormat()
                 fmt.setForeground(role_color)
                 cursor.setPosition(start)
                 cursor.setPosition(end, QTextCursor.KeepAnchor)
                 cursor.setCharFormat(fmt)
-
         except Exception as e:
-            self.display_text("recolourText: ", str(e))
+            import traceback
+            print(self.delims)
+            self.display_text("recolourText error:\n" + traceback.format_exc())
 
     # display text in the text box
     def display_text(self, text, end=""):
