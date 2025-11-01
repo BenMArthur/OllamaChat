@@ -1,21 +1,45 @@
-An app for interacting with your ollama models \
-You must install [ollama](ollama.com) and download a model 
+# Ollama Chat
+An app for interacting with your ollama models
 
-alt+space will open the window and shift+return will submit a prompt, or regenerate a response if you have no new prompt \
-all prompts, responses, and system prompts are stored in an editbale text box, so it is easy regenerate responses or edit/streamline them to not have unneeded information that would distract the model
+## Requirements
+You must install [ollama](ollama.com) and download a model. \
+ollama must run on startup
 
-Should work with any number of images in your prompt. I have only tested the expression, I have never used it on an image capable model. \
-This is the format used: re.findall(r"[A-za-z]:[\\/][^:]+.(?:png|jpg|jpeg|webp)", <prompt item>, flags=re.IGNORECASE)
+## Usage
+- **Open window:** `Alt + Space`  
+- **Submit prompt** `Shift + Enter with a prompt after user:`
+- **regenerate response** `Shift + Enter with nothing after user:`
+- **stop generation** `Shift + Enter while generating:`
 
-all chats are temporarily saved until you delete them or close the window \
-to save chats between sessions you must press the save button  
-updates to chats will also be saved temporarily, but to lock in those updates you must press the save button again.
+all prompts, responses, and system prompts are stored in an editbale text box, so it is easy to regenerate responses or edit/streamline them to not have unneeded information that would distract the model
+
+## Images
+Should work with any number of images in your prompt.\
+This is the format used:
+```python
+ re.findall(r"[A-za-z]:[\\/][^:]+.(?:png|jpg|jpeg|webp)", <prompt item>, flags=re.IGNORECASE)
+```
+
+## Saving Chats
+- all chats are temporarily saved until you delete them or close the window \
+- to save chats between sessions you must press the save button  
+- edits will also be saved temporarily, but to lock in those edits you must press the save button again.
 
 
-\
-You can download the .exe from here, or you can get the src files, install all the dependencies in a venv, and build it yourself using: pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py
+## Instalation
+### Downloading
+1. You can download the .exe the realeases here
+2. or you can clone the src files, install all the dependencies in a venv, and build it yourself using:
+```pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py```
 
-Put the exe somewhere and run it once, it will then run on startup \
-to completely uninstall it, delete the exe, /appdata/roaming/ollamaChat, and /AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/OllamaChat.lnk
+### Installing
+Put the exe somewhere and run it once \
+it will then run on startup
+
+### Uninstalation
+to fully delete 
+1. delete the exe
+2. delete /appdata/roaming/ollamaChat
+3. delete /AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/OllamaChat.lnk
 
 only works for windows, probably wouldnt be hard to change it for another platform
