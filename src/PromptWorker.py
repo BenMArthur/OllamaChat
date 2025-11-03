@@ -74,8 +74,7 @@ class PromptWorker(QObject):
 
             if self.stopGeneration:
                 self.stopGeneration = False
-            else:
-                self.progress.emit("usr12")
+            self.progress.emit("usr12")
 
         except Exception as e:
             self.progress.emit(f"gen response: {str(e)}")
