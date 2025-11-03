@@ -34,7 +34,8 @@ This is the format used:
 
 ### Installing
 Put the exe somewhere and run it once \
-it will then run on startup
+it will then run on startup \
+if it crashes for some reason you can run it again. But I should have fixed the crashing.
 
 ### Uninstalation
 to fully delete 

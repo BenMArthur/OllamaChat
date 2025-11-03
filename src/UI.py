@@ -1,10 +1,8 @@
 import os
 import re
-import threading
 
-import keyboard
 from PyQt5.Qt import Qt
-from PyQt5.QtCore import pyqtSignal, QTimer, QEvent, QPoint, QSize, QVariant
+from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor, QIcon
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, QTextEdit
 

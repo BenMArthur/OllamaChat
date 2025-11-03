@@ -8,7 +8,7 @@ from PyQt5.QtGui import QFont
 from ollama import list as ollamaList
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QThreadPool, QThread, QMetaObject, Qt, Q_ARG
+from PyQt5.QtCore import QThreadPool, QThread, Qt
 
 from Settings import Settings
 from UI import UI
@@ -39,6 +39,14 @@ class Chat(QMainWindow):
         self.appName = appName
         self.dataStore = Path.home() / f"AppData/Roaming/{self.appName}"
         self.dataStore.mkdir(parents=True, exist_ok=True)
+        historyPath = self.dataStore / f"history"
+        if historyPath.is_dir():
+            for tempPath in historyPath.iterdir():
+                if tempPath.is_dir() and tempPath.name.startswith("temp"):
+                    for tempSavePath in tempPath.iterdir():
+                        if tempSavePath.is_file:
+                            tempSavePath.unlink()
+                    tempPath.rmdir()
 
         self.settings = Settings(self.dataStore, screen)
         self.settings.submitted.connect(self.fetchSettings)
@@ -334,8 +342,3 @@ class Chat(QMainWindow):
             self.model = self.ui.modelSelect.currentText()
         except Exception as e:
             self.ui.display_text("changeModel: ", str(e))
-
-
-
-if __name__ == "__main__":
-    Chat.Main()
