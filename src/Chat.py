@@ -8,7 +8,7 @@ from PyQt5.QtGui import QFont
 from ollama import list as ollamaList
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QThreadPool, QThread
+from PyQt5.QtCore import QThreadPool, QThread, QMetaObject, Qt, Q_ARG
 
 from Settings import Settings
 from UI import UI
@@ -66,6 +66,14 @@ class Chat(QMainWindow):
         #self.ui.moveOrResize.connect(self.settings.movedOrResized)
 
         self.fetchSettings()
+
+        self.thread = QThread()
+        self.worker = PromptWorker()
+        self.worker.moveToThread(self.thread)
+        self.worker.finished.connect(self.endPrompt, Qt.QueuedConnection)
+        self.worker.progress.connect(self.ui.chunk, Qt.QueuedConnection)
+        self.worker.reGen.connect(self.ui.deleteForRegen, Qt.QueuedConnection)
+        self.thread.start()
 
         self.prevChat = self.ui.historyInput.text()
         self.newChat()
@@ -309,17 +317,8 @@ class Chat(QMainWindow):
             prompt = self.splitText(prompt)
             if len(prompt) < 2:
                 return
-            self.thread = QThread()
-            self.worker = PromptWorker(self.model, prompt, self.delims, self.hiddenDefaultPrompt)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.prompt)
-            self.worker.finished.connect(self.thread.quit)
-            self.worker.finished.connect(self.worker.deleteLater)
-            self.thread.finished.connect(self.thread.deleteLater)
-            self.thread.finished.connect(self.endPrompt)
-            self.worker.progress.connect(self.ui.chunk)
-            self.worker.reGen.connect(self.ui.deleteForRegen)
-            self.thread.start()
+
+            self.worker.startPrompt.emit(self.model, prompt, self.delims, self.hiddenDefaultPrompt)
 
             self.settings.settings["prevModel"] = self.model
             self.settings.saveSettingsFile()

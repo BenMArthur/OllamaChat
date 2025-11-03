@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from ollama import chat
 import re
 from pathlib import Path
@@ -9,59 +9,60 @@ class PromptWorker(QObject):
     progress = pyqtSignal(str)
     reGen = pyqtSignal(str)
 
-    def __init__(self, model, splitPrompt, delims, hiddenDefaultPrompt):
-        super().__init__()
-        self.model = model
-        self.stopGeneration = False
-        self.splitPrompt = splitPrompt
-        self.delims = delims
-        self.hiddenDefaultPrompt = hiddenDefaultPrompt
+    startPrompt = pyqtSignal(object, object, object, object)
 
-    def prompt(self):
+    def __init__(self):
+        super().__init__()
+        self.stopGeneration = False
+        self.startPrompt.connect(self.prompt, Qt.QueuedConnection)
+
+    @pyqtSlot(object, object, object, object)
+    def prompt(self, model, splitPrompt, delims, hiddenDefaultPrompt):
         try:
+            self.stopGeneration = False
             history = []
             missingImages = False
-            for counter in range(0, len(self.splitPrompt), 2):
-                if counter + 1 < len(self.splitPrompt):
+            for counter in range(0, len(splitPrompt), 2):
+                if counter + 1 < len(splitPrompt):
                     role = None
-                    if self.splitPrompt[counter].lower().startswith(self.delims["user"]):
+                    if splitPrompt[counter].lower().startswith(delims["user"]):
                         role = "user"
-                    elif self.splitPrompt[counter].lower().startswith(self.delims["assistant"]):
+                    elif splitPrompt[counter].lower().startswith(delims["assistant"]):
                         role = "assistant"
-                    elif self.splitPrompt[counter].lower().startswith(self.delims["system"]):
+                    elif splitPrompt[counter].lower().startswith(delims["system"]):
                         role = "system"
 
-                    images = re.findall(r"[A-za-z]:[\\/][^:]+.(?:png|jpg|jpeg|webp)", self.splitPrompt[counter + 1], flags=re.IGNORECASE)
+                    images = re.findall(r"[A-za-z]:[\\/][^:]+.(?:png|jpg|jpeg|webp)", splitPrompt[counter + 1], flags=re.IGNORECASE)
                     if len(images)>0:
                         for pair in [(image, Path(image).is_file()) for image in images]:
                             if not pair[1]:
                                 missingImages = True
                                 self.progress.emit(f"\nimage not found - {pair[0]}")
 
-                    if counter + 1 == len(self.splitPrompt) - 1 and self.splitPrompt[-1] == "":
+                    if counter + 1 == len(splitPrompt) - 1 and splitPrompt[-1] == "":
                         history = history[:-1]
                         self.reGen.emit("regen")
                     else:
                         if len(images) > 0:
-                            history.append({"role": role, "content": self.splitPrompt[counter + 1].strip(), "images": images})
+                            history.append({"role": role, "content": splitPrompt[counter + 1].strip(), "images": images})
                         else:
-                            history.append({"role": role, "content": self.splitPrompt[counter + 1].strip()})
+                            history.append({"role": role, "content": splitPrompt[counter + 1].strip()})
 
             if missingImages:
                 self.finished.emit()
                 return
 
-            if self.hiddenDefaultPrompt and not history[0]["role"] == self.delims["system"][:-1]:
-                history.insert(0, {"role": "system", "content": self.hiddenDefaultPrompt})
-            self.generateResponse(history)
+            if hiddenDefaultPrompt and not history[0]["role"] == delims["system"][:-1]:
+                history.insert(0, {"role": "system", "content": hiddenDefaultPrompt})
+            self.generateResponse(history, model)
         except Exception as e:
             print("prompt worker: ", str(e))
 
-    def generateResponse(self, history):
+    def generateResponse(self, history, model):
         try:
             self.progress.emit("assis12")
             stream = chat(
-                model=self.model,
+                model=model,
                 messages=history,
                 stream=True,
             )

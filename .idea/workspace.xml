@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="readme changes" />
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="spelling fixes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PromptWorker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/PromptWorker.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -278,7 +282,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762025391050</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="spelling fixes">
+      <option name="closed" value="true" />
+      <created>1762025682612</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1762025682612</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -311,6 +323,7 @@
     <MESSAGE value="added logos, can now easily regen, fixed threading issues with promptWorker, exe seems to work w/icons, imporved image finder" />
     <MESSAGE value="will now change delims when settings change" />
     <MESSAGE value="readme changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="readme changes" />
+    <MESSAGE value="spelling fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="spelling fixes" />
   </component>
 </project>
