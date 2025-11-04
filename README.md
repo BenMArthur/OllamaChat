@@ -7,9 +7,10 @@ ollama must run on startup
 
 ## Usage
 - **Open window:** `Alt + Space`  
-- **Submit prompt** `Shift + Enter with a prompt after user:`
-- **regenerate response** `Shift + Enter with nothing after user:`
-- **stop generation** `Shift + Enter while generating:`
+- **Submit prompt** `Shift + Enter` with a prompt after user:
+- **regenerate response** `Shift + Enter` with nothing after user:
+- **stop generation** `Shift + Enter` while generating:
+- **intervening in generation** `Shift + Enter` with no user: will treat the content after assistant: as the start of the generated response. (Doesn't really work with thinking models i.e. deepseek)
 
 all prompts, responses, and system prompts are stored in an editbale text box, so it is easy to regenerate responses or edit/streamline them to not have unneeded information that would distract the model
 
