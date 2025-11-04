@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 import os
 
-#from PyQt5.QtCore.QByteArray import split
 from PyQt5.QtGui import QFont
 from ollama import list as ollamaList
 
@@ -120,59 +119,51 @@ class Chat(QMainWindow):
                 started = self.delims["assistant"].lower() in [part.lower() for part in parts[::2]]
                 #change nothing if never enabled
                 if not(not newEnableSysPrompt and not self.enableSysPrompt):
-                    print(1)
                     #if there is a change in enabling
                     if newEnableSysPrompt != self.enableSysPrompt:
-                        print(2)
-                        #if hiding sysPrompt don't have to do anything
-                        if not self.hideSysPrompt:
-                            print(3)
-                            # if turning on the sysprompt
-                            if newEnableSysPrompt:
-                                print(4)
-                                # only change the sysprompt if the chat has not started
-                                if not started:
-                                    print(5)
-                                    #if there is enough entries to check if the default prompt is being used
-                                    if safeToCheck:
-                                        # if the current default prompt is there change it
-                                        if parts[0].lower() == self.delims["system"].lower() and parts[1] == self.sysPrompt:
-                                            text = self.delims["system"] + self.sysPrompt + "\n\n" + "".join(parts[2:])
-                                    # if there is not enough entries then it doesnt have a system prompt
-                                    else:
-                                        print(6)
-                                        text = self.delims["system"] + self.sysPrompt + "\n\n" + text
-                                #do not change prompt if chat has already started
-                                else:
-                                    pass
-                            # if turning off the sysPrompt
-                            else:
-                                # only change if chat has been started
-                                if not started:
-                                    if safeToCheck:
-                                        # if the current default prompt is there remove it
-                                        if parts[0].lower() == self.delims["system"].lower() and parts[1].strip() == self.sysPrompt.strip():
-                                            text = "".join(parts[2:])
-                                    # it wont have the current Default prompt
+                        if self.sysPrompt is not None:
+                            #if hiding sysPrompt don't have to do anything
+                            if not self.hideSysPrompt:
+                                # if turning on the sysprompt
+                                if newEnableSysPrompt:
+                                    # only change the sysprompt if the chat has not started
+                                    if not started:
+                                        #if there is enough entries to check if the default prompt is being used
+                                        if safeToCheck:
+                                            # if the current default prompt is there change it
+                                            if parts[0].lower() == self.delims["system"].lower() and parts[1] == self.sysPrompt:
+                                                text = self.delims["system"] + self.sysPrompt + "\n\n" + "".join(parts[2:])
+                                        # if there is not enough entries then it doesnt have a system prompt
+                                        else:
+                                            text = self.delims["system"] + self.sysPrompt + "\n\n" + text
+                                    #do not change prompt if chat has already started
                                     else:
                                         pass
-                                #do nothing if the chat has started
+                                # if turning off the sysPrompt
                                 else:
-                                    pass
-                        #do nothing if sysprompt is hidden
-                        else:
-                            pass
-                        print(7)
+                                    # only change if chat has been started
+                                    if not started:
+                                        if safeToCheck:
+                                            # if the current default prompt is there remove it
+                                            if parts[0].lower() == self.delims["system"].lower() and parts[1].strip() == self.sysPrompt.strip():
+                                                text = "".join(parts[2:])
+                                        # it wont have the current Default prompt
+                                        else:
+                                            pass
+                                    #do nothing if the chat has started
+                                    else:
+                                        pass
+                            #do nothing if sysprompt is hidden
+                            else:
+                                pass
                         self.enableSysPrompt = newEnableSysPrompt
-                        print(8)
-                    print(9)
 
                     # if there is a change in hiding
                     # dont care whether chat has started as this doesn't affect generation
                     if newHideSysPrompt != self.hideSysPrompt:
-                        #only do anything if sysprompt is enabled
+                        #only do anything if sysprompt is enabled and there is a sysprompt
                         # if it is disabled it is already hidden and won't be shown
-                        if self.enableSysPrompt:
+                        if self.enableSysPrompt and self.sysPrompt is not None:
                             # if prompt is getting shown
                             if not newHideSysPrompt:
                                 # if it is safe to check for an existing prompt
@@ -202,9 +193,7 @@ class Chat(QMainWindow):
                         self.hideSysPrompt = newHideSysPrompt
 
                     # if change in the content of the prompt
-                    print(newSysPrompt)
                     if newSysPrompt != self.sysPrompt:
-                        print(newSysPrompt)
                         # only do anything if enabled and showing
                         if self.enableSysPrompt and not self.hideSysPrompt:
                             # only change if the chat has started
@@ -214,7 +203,7 @@ class Chat(QMainWindow):
                                     if parts[0].lower() == self.delims["system"].lower() and parts[1].strip() == self.sysPrompt.strip():
                                         text = self.delims["system"] + newSysPrompt + "\n\n" + "".join(parts[2:])
                                 else:
-                                    text = self.sysPrompt + "\n\n" + text
+                                    text = newSysPrompt + "\n\n" + text
                             #change nothing if chat has started
                             else:
                                 pass
@@ -402,7 +391,6 @@ class Chat(QMainWindow):
     #create a new chat
     def newChat(self):
         try:
-            print(self.enableSysPrompt, self.hideSysPrompt, self.sysPrompt)
             if self.prompting:
                 self.worker.endGeneration()
             self.saveTemp()

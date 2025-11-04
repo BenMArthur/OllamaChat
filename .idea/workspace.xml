@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="now adds user: when canceling generaion">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="part way through changing sysprompt">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -312,7 +313,23 @@
       <option name="project" value="LOCAL" />
       <updated>1762168292995</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="readme">
+      <option name="closed" value="true" />
+      <created>1762277029080</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1762277029080</updated>
+    </task>
+    <task id="LOCAL-00025" summary="part way through changing sysprompt">
+      <option name="closed" value="true" />
+      <created>1762288572813</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1762288572813</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -336,7 +353,6 @@
     <MESSAGE value="implemented functionality for model select settings, setings done for now" />
     <MESSAGE value="restricted to one window at a time, window always appears on top, adds startup shortcut, uses ollama.list" />
     <MESSAGE value="window now retains previous size and position" />
-    <MESSAGE value="readme" />
     <MESSAGE value="readme2" />
     <MESSAGE value="fixed loading/saving bugs" />
     <MESSAGE value="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead" />
@@ -349,6 +365,8 @@
     <MESSAGE value="now only has one worker and one thread. should fix more threading issues" />
     <MESSAGE value="cleans up any potential leftover tempDirs from crashes" />
     <MESSAGE value="now adds user: when canceling generaion" />
-    <option name="LAST_COMMIT_MESSAGE" value="now adds user: when canceling generaion" />
+    <MESSAGE value="readme" />
+    <MESSAGE value="part way through changing sysprompt" />
+    <option name="LAST_COMMIT_MESSAGE" value="part way through changing sysprompt" />
   </component>
 </project>
