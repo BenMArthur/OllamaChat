@@ -104,7 +104,6 @@ class Chat(QMainWindow):
                 self.ui.delims = newDelims
             else:
                 self.changeDelims(newDelims)
-
             newSysPrompt = self.settings.settings["sysPrompt"]
             newHideSysPrompt = self.settings.settings["hideSysPrompt"]
             newEnableSysPrompt = self.settings.settings["enableSysPrompt"]
@@ -412,9 +411,10 @@ class Chat(QMainWindow):
                 if not self.hideSysPrompt:
                     self.ui.display_text(f"{self.delims["system"]} {self.settings.settings["sysPrompt"]}\n\n")
                 else:
-                    self.sysPrompt = self.settings.settings["sysPrompt"]
+                    #self.sysPrompt = self.settings.settings["sysPrompt"]
                     #add checks to load chat and stuff for handling to prompt. save hidden like normal
                     #also hide/show if changed default prompt
+                    pass
 
             self.ui.display_text(f"{self.delims["user"]} ")
             self.ui.recolour_text()
@@ -434,9 +434,13 @@ class Chat(QMainWindow):
         try:
             prompt = self.splitText(prompt)
             if len(prompt) < 2:
+                self.prompting = False
                 return
 
-            self.worker.startPrompt.emit(self.model, prompt, self.delims, self.sysPrompt)
+            if self.enableSysPrompt:
+                self.worker.startPrompt.emit(self.model, prompt, self.delims, self.sysPrompt)
+            else:
+                self.worker.startPrompt.emit(self.model, prompt, self.delims, None)
 
             self.settings.settings["prevModel"] = self.model
             self.settings.saveSettingsFile()

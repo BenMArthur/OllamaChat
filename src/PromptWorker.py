@@ -19,9 +19,14 @@ class PromptWorker(QObject):
     @pyqtSlot(object, object, object, object)
     def prompt(self, model, splitPrompt, delims, hiddenDefaultPrompt):
         try:
+            if len(splitPrompt)==2:
+                if splitPrompt[1] == "":
+                    self.finished.emit()
+                    return
             self.stopGeneration = False
             history = []
             missingImages = False
+
             for counter in range(0, len(splitPrompt), 2):
                 if counter + 1 < len(splitPrompt):
                     role = None
@@ -32,7 +37,7 @@ class PromptWorker(QObject):
                     elif splitPrompt[counter].lower().startswith(delims["system"]):
                         role = "system"
 
-                    images = re.findall(r"[A-za-z]:[\\/][^:]+.(?:png|jpg|jpeg|webp)", splitPrompt[counter + 1], flags=re.IGNORECASE)
+                    images = re.findall(r"[A-Za-z]:[\\/][^:]+.(?:png|jpg|jpeg|webp)", splitPrompt[counter + 1], flags=re.IGNORECASE)
                     if len(images)>0:
                         for pair in [(image, Path(image).is_file()) for image in images]:
                             if not pair[1]:
@@ -57,6 +62,9 @@ class PromptWorker(QObject):
             self.generateResponse(history, model)
         except Exception as e:
             print("prompt worker: ", str(e))
+            import traceback
+            print("prompt worker: An error occurred")
+            traceback.print_exc()
 
     def generateResponse(self, history, model):
         try:

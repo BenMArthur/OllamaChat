@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="part way through changing sysprompt">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="fixed crashing, now works with short split prompts">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PromptWorker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/PromptWorker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -329,7 +332,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762288572813</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="should now show/hide/change sysprompt as intended">
+      <option name="closed" value="true" />
+      <created>1762289775432</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1762289775432</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -367,6 +378,7 @@
     <MESSAGE value="now adds user: when canceling generaion" />
     <MESSAGE value="readme" />
     <MESSAGE value="part way through changing sysprompt" />
-    <option name="LAST_COMMIT_MESSAGE" value="part way through changing sysprompt" />
+    <MESSAGE value="should now show/hide/change sysprompt as intended" />
+    <option name="LAST_COMMIT_MESSAGE" value="should now show/hide/change sysprompt as intended" />
   </component>
 </project>

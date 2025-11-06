@@ -58,7 +58,10 @@ class Settings(QWidget):
         #default system prompt section
         def sysPrompt():
             SysPromptLayout = QVBoxLayout()
-            self.sysPromptLabel = QLabel("\nDefault Sytem prompt: \n     (Not useful for some models i.e. deepseek) \n     (added at the start of any chat without explicit sysPrompt)")
+            self.sysPromptLabel = QLabel("\nDefault Sytem prompt: \n"
+                                         "     (Not useful for some models i.e. deepseek) \n"
+                                         "     (added at the start of any chat without explicit sysPrompt) \n"
+                                         "     (Default prompt can only be edited here, even if showing it)")
             SysPromptLayout.addWidget(self.sysPromptLabel)
 
             def checkItem(text):

@@ -2,7 +2,7 @@ import os
 import re
 
 from PyQt5.Qt import Qt
-from PyQt5.QtCore import pyqtSignal, QTimer
+from PyQt5.QtCore import pyqtSignal, QTimer, QEvent
 from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor, QIcon
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, QTextEdit
 
@@ -161,18 +161,25 @@ class UI(QMainWindow):
     # handle shift-enter and recolour text while typing
     def eventFilter(self, obj, event):
         try:
-            #if the text box is selected and a key is pressed
-            if obj is self.chat_display and event.type() == event.KeyPress:
-                #if it is the submit prompt hotkey
-                if event.key() == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
-                    self.newPrompt.emit(self.chat_display.toPlainText().strip())
-                    return True
-                #run on space to dynamically recolour text
-                elif event.key() == Qt.Key_Space:
-                    self.recolour_text()
-            return super().eventFilter(obj, event)
+            if obj is not self.chat_display:
+                return False
+
+            if event.type() != QEvent.KeyPress:
+                return False
+
+            key = event.key()
+
+            if key == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
+                self.newPrompt.emit(self.chat_display.toPlainText().strip())
+                return True
+
+            if key == Qt.Key_Space:
+                self.recolour_text()
+                return super().eventFilter(obj, event)
+
+            return False
         except Exception as e:
-            print("eventFilter", str(e))
+            self.display_text(f"eventFilter: {str(e)}")
 
     #save position and size when window has been still for 0.3 seconds
     def moveEvent(self, event):
