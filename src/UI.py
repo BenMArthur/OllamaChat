@@ -161,21 +161,27 @@ class UI(QMainWindow):
     # handle shift-enter and recolour text while typing
     def eventFilter(self, obj, event):
         try:
-            if obj is not self.chat_display:
-                return False
 
             if event.type() != QEvent.KeyPress:
                 return False
 
             key = event.key()
+            if obj is self.chat_display:
 
-            if key == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
-                self.newPrompt.emit(self.chat_display.toPlainText().strip())
-                return True
+                if key == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
+                    self.newPrompt.emit(self.chat_display.toPlainText().strip())
+                    return True
 
-            if key == Qt.Key_Space:
-                self.recolour_text()
-                return super().eventFilter(obj, event)
+                if key == Qt.Key_Space:
+                    self.recolour_text()
+                    return super().eventFilter(obj, event)
+
+            elif obj is self.historyInput and key == Qt.Key_Return:
+                name = self.historyInput.text().lower()
+                for i in range(self.historySelect.count()):
+                    if self.historySelect.itemText(i).lower() == name:
+                        self.historySelect.setCurrentIndex(i)
+                        return True
 
             return False
         except Exception as e:

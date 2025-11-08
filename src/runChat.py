@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QThread
+
 from Chat import Chat
 
 import os
@@ -32,5 +34,8 @@ keyboard.wait()
 
 #add comments
 #close with alt+space
+
+#cannot remove default
+#want to change default to ""
 
 #pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py

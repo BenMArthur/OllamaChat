@@ -69,6 +69,7 @@ class Chat(QMainWindow):
         self.ui.modelSelect.currentIndexChanged.connect(self.changeModel)
         self.ui.settingsButton.clicked.connect(self.settings.toggleSettings)
         self.ui.chat_display.installEventFilter(self.ui)
+        self.ui.historyInput.installEventFilter(self.ui)
 
         #emitters from UI
         self.ui.newPrompt.connect(self.prompt)
@@ -85,7 +86,7 @@ class Chat(QMainWindow):
         self.worker.reGen.connect(self.ui.deleteForRegen, Qt.QueuedConnection)
         self.thread.start()
 
-        self.prevChat = self.ui.historyInput.text()
+        self.prevChat = self.ui.historyInput.text().lower()
         self.newChat()
 
 
@@ -116,8 +117,8 @@ class Chat(QMainWindow):
                 parts = self.splitText(text)
                 safeToCheck = len(parts) >= 2
                 started = self.delims["assistant"].lower() in [part.lower() for part in parts[::2]]
-                #change nothing if never enabled
-                if not(not newEnableSysPrompt and not self.enableSysPrompt):
+                #only change anything if it was enabled before or after
+                if newEnableSysPrompt or self.enableSysPrompt:
                     #if there is a change in enabling
                     if newEnableSysPrompt != self.enableSysPrompt:
                         if self.sysPrompt is not None:
@@ -131,10 +132,12 @@ class Chat(QMainWindow):
                                         if safeToCheck:
                                             # if the current default prompt is there change it
                                             if parts[0].lower() == self.delims["system"].lower() and parts[1] == self.sysPrompt:
-                                                text = self.delims["system"] + self.sysPrompt + "\n\n" + "".join(parts[2:])
+                                                text = self.delims["system"] + " " + self.sysPrompt + "\n\n" + "".join(parts[2:])
+                                            else:
+                                                text = self.delims["system"] + " " + self.sysPrompt + "\n\n" + text
                                         # if there is not enough entries then it doesnt have a system prompt
                                         else:
-                                            text = self.delims["system"] + self.sysPrompt + "\n\n" + text
+                                            text = self.delims["system"] + " " + self.sysPrompt + "\n\n" + text
                                     #do not change prompt if chat has already started
                                     else:
                                         pass
@@ -172,10 +175,10 @@ class Chat(QMainWindow):
                                         pass
                                     # else add on the default prompt
                                     else:
-                                        text = self.delims["system"] + self.sysPrompt + "\n\n" + text
+                                        text = self.delims["system"] + " " + self.sysPrompt + "\n\n" + text
                                 # if it is short then it won't have a sysprompt
                                 else:
-                                    text = self.delims["system"] + self.sysPrompt + "\n\n" + text
+                                    text = self.delims["system"] + " " + self.sysPrompt + "\n\n" + text
                             #if hiding sysprompt
                             else:
                                 # if it is safe to check for the prompt
@@ -200,9 +203,9 @@ class Chat(QMainWindow):
                                 if safeToCheck:
                                     # if the old default prompt is there replace it
                                     if parts[0].lower() == self.delims["system"].lower() and parts[1].strip() == self.sysPrompt.strip():
-                                        text = self.delims["system"] + newSysPrompt + "\n\n" + "".join(parts[2:])
+                                        text = self.delims["system"] + " " + newSysPrompt + "\n\n" + "".join(parts[2:])
                                 else:
-                                    text = newSysPrompt + "\n\n" + text
+                                    text = self.delims["system"] + " " + newSysPrompt + "\n\n" + text
                             #change nothing if chat has started
                             else:
                                 pass
@@ -254,12 +257,12 @@ class Chat(QMainWindow):
     def saveChat(self):
         try:
             currentIndex = self.ui.historySelect.currentIndex()
-            newName = self.ui.historyInput.text()
+            newName = self.ui.historyInput.text().lower()
             i=0
             while newName in [self.ui.historyNames[j] for j in range(len(self.ui.historyNames)) if j != currentIndex]:
                 i+=1
                 if f"{newName}({i})" not in self.ui.historyNames:
-                    newName = f"{self.ui.historyInput.text()} ({i})"
+                    newName = f"{self.ui.historyInput.text().lower()} ({i})"
 
             if (self.dataStore / f"history/{self.ui.historyNames[currentIndex]}.txt").is_file():
                 Path.rename(self.dataStore / f"history/{self.ui.historyNames[currentIndex]}.txt", self.dataStore / f"history/{newName}.txt")
@@ -267,11 +270,10 @@ class Chat(QMainWindow):
                 (self.dataStore / "history").mkdir(parents=True, exist_ok=True)
                 with open(self.dataStore / f"history/{newName}.txt", "w"):
                     pass
-
-            ToWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
+            toWrite = self.addHiddenPromptIfNeeded(self.ui.chat_display.toPlainText())
             #ToWrite = self.ui.chat_display.toPlainText()
             with open(self.dataStore / f"history/{newName}.txt", "w", encoding="utf-8") as file:
-                file.write(ToWrite)
+                file.write(toWrite)
 
             self.saveTemp()
             self.ui.historySelect.clear()
@@ -310,7 +312,7 @@ class Chat(QMainWindow):
             if text:
                 split = self.splitText(text)
                 if len(split)>0:
-                    if not split[0].startswith(self.delims["system"]) and self.sysPrompt:
+                    if not split[0].startswith(self.delims["system"]) and self.sysPrompt and self.enableSysPrompt:
                         text = f"{self.delims["system"]} {self.sysPrompt}\n\n{text}"
                 return text
             return ""
@@ -335,8 +337,11 @@ class Chat(QMainWindow):
                     text = file.read()
                     split = self.splitText(text)
                     if len(split) >= 2:
-                        if split[0].startswith(self.delims["system"]) and self.sysPrompt is not None and split[1].strip() == self.sysPrompt.strip():
-                            self.ui.display_text("".join(split[2:]))
+                        if split[0].startswith(self.delims["system"]) and self.sysPrompt is not None:
+                            if split[1].strip() == self.sysPrompt.strip() and self.enableSysPrompt and self.hideSysPrompt:
+                                self.ui.display_text("".join(split[2:]))
+                            else:
+                                self.ui.display_text(text)
                         else:
                             self.ui.display_text(text)
                     else:
@@ -347,8 +352,11 @@ class Chat(QMainWindow):
                     text = file.read()
                     split = self.splitText(text)
                     if len(split) >= 2:
-                        if split[0].startswith(self.delims["system"]) and self.sysPrompt is not None and split[1].strip() == self.sysPrompt.strip():
-                            self.ui.display_text("".join(split[2:]))
+                        if split[0].startswith(self.delims["system"]) and self.sysPrompt is not None:
+                            if split[1].strip() == self.sysPrompt.strip() and self.enableSysPrompt and self.hideSysPrompt:
+                                self.ui.display_text("".join(split[2:]))
+                            else:
+                                self.ui.display_text(text)
                         else:
                             self.ui.display_text(text)
                     else:
@@ -419,7 +427,7 @@ class Chat(QMainWindow):
             self.ui.display_text(f"{self.delims["user"]} ")
             self.ui.recolour_text()
             self.ui.chat_display.setFocus()
-            self.prevChat = self.ui.historyInput.text()
+            self.prevChat = self.ui.historyInput.text().lower()
 
         except Exception as e:
             self.ui.display_text("newChat: ", str(e))
