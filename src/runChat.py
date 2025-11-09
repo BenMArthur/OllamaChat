@@ -1,5 +1,3 @@
-from PyQt5.QtCore import QThread
-
 from Chat import Chat
 
 import os

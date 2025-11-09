@@ -17,7 +17,7 @@ class PromptWorker(QObject):
         self.startPrompt.connect(self.prompt, Qt.QueuedConnection)
 
     @pyqtSlot(object, object, object, object)
-    def prompt(self, model, splitPrompt, delims, hiddenDefaultPrompt):
+    def prompt(self, model, splitPrompt, delims, sysPrompt):
         try:
             if len(splitPrompt)==2:
                 if splitPrompt[1] == "":
@@ -58,8 +58,8 @@ class PromptWorker(QObject):
                 self.finished.emit()
                 return
 
-            if hiddenDefaultPrompt and not history[0]["role"] == delims["system"][:-1]:
-                history.insert(0, {"role": "system", "content": hiddenDefaultPrompt})
+            if sysPrompt.strip() != "" and not history[0]["role"] == delims["system"][:-1]:
+                history.insert(0, {"role": "system", "content": sysPrompt})
             self.generateResponse(history, model)
         except Exception as e:
             print("prompt worker: ", str(e))
