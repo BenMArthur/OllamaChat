@@ -6,11 +6,12 @@ You must install [ollama](ollama.com) and download a model. \
 ollama must run on startup
 
 ## Usage
-- **Open window:** `Ctrl + Alt + Space`  
+- **Open/close window:** `Ctrl + Alt + Space`  
 - **Submit prompt** `Shift + Enter` with a prompt after user:
 - **regenerate response** `Shift + Enter` with nothing after user:
 - **stop generation** `Shift + Enter` while generating:
-- **intervening in generation** `Shift + Enter` with no user: will treat the content after assistant: as the start of the generated response. (Doesn't really work with thinking models i.e. deepseek)
+- **intervening in generation** `Shift + Enter` with no user: will treat the content after assistant: as the start of the generated response. (Doesn't really work with thinking models i.e. deepseek) (I haven't looked too much into it, or with different thinking models, however, by default thoughts are not displayed, this seem to treat the tokens generated so far (the start of the content) as the start of the thoughts, it will then generate thoughts at normal, but generate them as content. Content then is generated as normal)
+- A lot of things from the same command, but they make sense once you try it out.
 
 all prompts, responses, and system prompts are stored in an editbale text box, so it is easy to regenerate responses or edit/streamline them to not have unneeded information that would distract the model
 
@@ -23,8 +24,11 @@ This is the format used:
 
 ## Saving Chats
 - all chats are temporarily saved until you delete them or close the window
-- to save chats between sessions you must press the save button  
-- edits will also be saved temporarily, but to lock in those edits you must press the save button again.
+- to save chats between sessions you must press the save button 
+- edits will be saved temporarily as you switch between chats, but closing the window will delete all temporary saves
+- to lock in edits you must press the save button again.
+- you can press the arrow button to revert to the permenant save
+- all saves are stored in plain text .txt files in /appdata/roaming/ollamaChat/history
 
 
 ## Instalation
