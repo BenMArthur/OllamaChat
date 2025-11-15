@@ -33,7 +33,6 @@ keyboard.wait()
 #add comments
 #close with alt+space
 
-#cannot remove default
-#want to change default to ""
+#persist hidden prompt when chat started
 
 #pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py

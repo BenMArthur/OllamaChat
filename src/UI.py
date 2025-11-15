@@ -59,6 +59,10 @@ class UI(QMainWindow):
         self.saveButton.setFixedWidth(27)
         topLayout.addWidget(self.saveButton)
 
+        self.revertButton = QPushButton(text="🔄")
+        self.revertButton.setFixedWidth(27)
+        topLayout.addWidget(self.revertButton)
+
         self.deleteButton = QPushButton(text="❌")
         self.deleteButton.setFixedWidth(27)
         topLayout.addWidget(self.deleteButton)
