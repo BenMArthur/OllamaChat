@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="&quot;&quot; instead of None, still need to fix changing prompt when hidden">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="fixes sysPrompt at startup, added button to revert to permenant save">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/UI.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/runChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/runChat.py" afterDir="false" />
@@ -363,7 +364,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762696054660</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="fixes sysPrompt at startup, added button to revert to permenant save">
+      <option name="closed" value="true" />
+      <created>1763242602807</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1763242602807</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -378,7 +387,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="before rearanging creator, fixed found errors" />
     <MESSAGE value="didnt rearange creator, added default sysprompt: may still want to do for when settings change. going to split Chat" />
     <MESSAGE value="split UI into own class, chat is still main window, and therefore has some UI logic" />
     <MESSAGE value="fully moved UI into UI" />
@@ -403,6 +411,7 @@
     <MESSAGE value="edited eventFilter to work better" />
     <MESSAGE value="fixing edge cases of default" />
     <MESSAGE value="&quot;&quot; instead of None, still need to fix changing prompt when hidden" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;&quot; instead of None, still need to fix changing prompt when hidden" />
+    <MESSAGE value="fixes sysPrompt at startup, added button to revert to permenant save" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixes sysPrompt at startup, added button to revert to permenant save" />
   </component>
 </project>

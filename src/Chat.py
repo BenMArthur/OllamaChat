@@ -8,7 +8,7 @@ from PyQt5.QtGui import QFont
 from ollama import list as ollamaList
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QThreadPool, QThread, Qt
+from PyQt5.QtCore import QThreadPool, QThread, Qt, pyqtSignal
 
 from Settings import Settings
 from UI import UI
@@ -16,15 +16,7 @@ from PromptWorker import PromptWorker
 
 
 class Chat(QMainWindow):
-
-    @staticmethod
-    def Main(appName):
-        app = QApplication(sys.argv)
-        font = QFont("Arial", 11)
-        app.setFont(font)
-
-        Chat(app.primaryScreen().availableGeometry(), appName)
-        app.exec()
+    toggleSignal = pyqtSignal()
 
     def __init__(self, screen, appName):
         super().__init__()
@@ -88,7 +80,29 @@ class Chat(QMainWindow):
         self.thread.start()
 
         self.prevChat = self.ui.historyInput.text().lower()
-        self.newChat()
+        self.toggleSignal.connect(self.toggleVisible)
+
+    def toggleVisible(self):
+        if self.ui.isHidden():
+            self.newChat(False)
+            self.ui.setWindowFlags(self.ui.windowFlags() | Qt.WindowStaysOnTopHint)
+            self.ui.show()
+            self.ui.setWindowFlags(self.ui.windowFlags() & ~Qt.WindowStaysOnTopHint)
+            self.ui.show()
+        else:
+            self.ui.chat_display.clear()
+            self.removeTemp()
+            self.ui.hide()
+
+    def removeTemp(self):
+        temp_dir = self.dataStore / f"history/temp{os.getpid()}"
+        if temp_dir.is_dir():
+            for item in temp_dir.iterdir():
+                if item.is_file() or item.is_symlink():
+                    item.unlink()
+        self.ui.historyNames = [path.name[:-4] for path in list(sorted((self.dataStore / f"history").glob('*.txt')))]
+        self.ui.historySelect.clear()
+        self.ui.historySelect.addItems(self.ui.historyNames)
 
 
     #get settings when they are changed
@@ -392,16 +406,17 @@ class Chat(QMainWindow):
             self.ui.display_text("deleteChat: ", str(e))
 
     #create a new chat
-    def newChat(self):
+    def newChat(self, save = True):
         try:
             if self.prompting:
                 self.worker.endGeneration()
-            self.saveTemp()
+            if save:
+                self.saveTemp()
             self.ui.historyNames.insert(0, None)
             default = "new chat 1"
             i = 1
             while default in self.ui.historyNames:
-                default = f"{default[:-1]}{str(i)}"
+                default = f"{" ".join(default.split(" ")[:2])} {str(i)}"
                 i += 1
             self.ui.historyNames[0] = default
             self.ui.chat_display.clear()

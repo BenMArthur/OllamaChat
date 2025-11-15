@@ -6,7 +6,7 @@ You must install [ollama](ollama.com) and download a model. \
 ollama must run on startup
 
 ## Usage
-- **Open window:** `Alt + Space`  
+- **Open window:** `Ctrl + Alt + Space`  
 - **Submit prompt** `Shift + Enter` with a prompt after user:
 - **regenerate response** `Shift + Enter` with nothing after user:
 - **stop generation** `Shift + Enter` while generating:

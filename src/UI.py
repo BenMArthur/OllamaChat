@@ -4,7 +4,8 @@ import re
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import pyqtSignal, QTimer, QEvent
 from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor, QIcon
-from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, QTextEdit
+from PyQt5.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QVBoxLayout, \
+    QTextEdit, QApplication
 
 from LoadImage import resource_path
 
@@ -32,12 +33,6 @@ class UI(QMainWindow):
         layout = QVBoxLayout(central)
         layout.addLayout(self.topBar(models, model))
         layout.addWidget(self.createChatDisplay())
-
-        #make it appear on top
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
-        self.show()
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
-        self.show()
 
     #Top bar
     def topBar(self, models, model):
@@ -206,6 +201,18 @@ class UI(QMainWindow):
 
     #delete temp files
     def closeEvent(self, event):
+        app = QApplication.instance()
+        userClose = (
+                event.type() == QEvent.Close
+                and event.spontaneous()  # emitted due to user action
+                and not app.isSavingSession()  # not a system shutdown
+        )
+
+        if userClose:
+            event.ignore()
+            self.hide()
+            return
+
         path = self.dataStore / f"history/temp{os.getpid()}"
         if path.is_dir():
             for child in path.iterdir():

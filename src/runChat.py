@@ -1,3 +1,6 @@
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication
+
 from Chat import Chat
 
 import os
@@ -20,18 +23,28 @@ def addStartup():
         shortcut.WindowStyle = 7
         shortcut.save()
 
-def run():
-    Chat.Main(appName)
+def run(chat):
+    chat.toggleVisible()
 import ctypes
 appName = "ollamaChat"
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appName)
-
 addStartup()
-keyboard.add_hotkey('alt+space', run)
-keyboard.wait()
+
+app = QApplication(sys.argv)
+font = QFont("Arial", 11)
+app.setFont(font)
+chat = Chat(app.primaryScreen().availableGeometry(), appName)
+
+import threading
+
+def hotkey_listener():
+    keyboard.add_hotkey('ctrl+alt+space', lambda: chat.toggleSignal.emit())
+    keyboard.wait()
+
+threading.Thread(target=hotkey_listener, daemon=True).start()
+app.exec()
 
 #add comments
-#close with alt+space
 
 #persist hidden prompt when chat started
 
