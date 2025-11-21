@@ -2,8 +2,7 @@
 An app for interacting with your ollama models
 
 ## Requirements
-You must install [ollama](ollama.com) and download a model. \
-ollama must run on startup
+You must install [ollama](ollama.com) and download a model.
 
 ## Usage
 - **Open/close window:** `Ctrl + Alt + Space`  

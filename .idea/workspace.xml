@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="fixes sysPrompt at startup, added button to revert to permenant save, app now created in main thread, changed to ctrl alt space, closes with hotkey">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="default prompt shows if it was hidden instead of staying hidden but fixed, settings close with window">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UI.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/UI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/runChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/runChat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -378,7 +380,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763246269551</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="may have fixed default sys prompt when hidden">
+      <option name="closed" value="true" />
+      <created>1763247711928</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1763247711928</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -393,7 +403,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="split UI into own class, chat is still main window, and therefore has some UI logic" />
     <MESSAGE value="fully moved UI into UI" />
     <MESSAGE value="implemented functionality for model select settings, setings done for now" />
     <MESSAGE value="restricted to one window at a time, window always appears on top, adds startup shortcut, uses ollama.list" />
@@ -418,6 +427,7 @@
     <MESSAGE value="&quot;&quot; instead of None, still need to fix changing prompt when hidden" />
     <MESSAGE value="fixes sysPrompt at startup, added button to revert to permenant save" />
     <MESSAGE value="fixes sysPrompt at startup, added button to revert to permenant save, app now created in main thread, changed to ctrl alt space, closes with hotkey" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixes sysPrompt at startup, added button to revert to permenant save, app now created in main thread, changed to ctrl alt space, closes with hotkey" />
+    <MESSAGE value="may have fixed default sys prompt when hidden" />
+    <option name="LAST_COMMIT_MESSAGE" value="may have fixed default sys prompt when hidden" />
   </component>
 </project>

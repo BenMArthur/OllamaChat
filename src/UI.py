@@ -13,6 +13,7 @@ from LoadImage import resource_path
 class UI(QMainWindow):
     newPrompt = pyqtSignal(str)
     moveOrResize = pyqtSignal(str)
+    userClosed = pyqtSignal()
     def __init__(self, dataStore, models, model, pos, size):
         super().__init__()
 
@@ -167,7 +168,7 @@ class UI(QMainWindow):
             key = event.key()
             if obj is self.chat_display:
 
-                if key == Qt.Key_Return and event.modifiers() == Qt.ShiftModifier:
+                if key == Qt.Key_Return  and event.modifiers() == Qt.ShiftModifier:
                     self.newPrompt.emit(self.chat_display.toPlainText().strip())
                     return True
 
@@ -175,7 +176,7 @@ class UI(QMainWindow):
                     self.recolour_text()
                     return super().eventFilter(obj, event)
 
-            elif obj is self.historyInput and key == Qt.Key_Return:
+            elif obj is self.historyInput and (key == Qt.Key_Return or key == Qt.Key_Enter):
                 name = self.historyInput.text().lower()
                 for i in range(self.historySelect.count()):
                     if self.historySelect.itemText(i).lower() == name:
@@ -211,6 +212,7 @@ class UI(QMainWindow):
         if userClose:
             event.ignore()
             self.hide()
+            self.userClosed.emit()
             return
 
         path = self.dataStore / f"history/temp{os.getpid()}"

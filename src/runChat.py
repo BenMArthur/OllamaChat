@@ -8,6 +8,9 @@ import sys
 import winshell
 from win32com.client import Dispatch
 import keyboard
+import ctypes
+import threading
+import subprocess
 
 # Function to add the program to Windows startup
 def addStartup():
@@ -23,9 +26,13 @@ def addStartup():
         shortcut.WindowStyle = 7
         shortcut.save()
 
-def run(chat):
-    chat.toggleVisible()
-import ctypes
+def hotkey_listener():
+    keyboard.add_hotkey('ctrl+alt+space', lambda: chat.toggleSignal.emit())
+    keyboard.wait()
+
+CREATE_NO_WINDOW = 0x08000000
+subprocess.Popen(["ollama", "serve"], creationflags=CREATE_NO_WINDOW)
+
 appName = "ollamaChat"
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appName)
 addStartup()
@@ -35,17 +42,9 @@ font = QFont("Arial", 11)
 app.setFont(font)
 chat = Chat(app.primaryScreen().availableGeometry(), appName)
 
-import threading
-
-def hotkey_listener():
-    keyboard.add_hotkey('ctrl+alt+space', lambda: chat.toggleSignal.emit())
-    keyboard.wait()
-
 threading.Thread(target=hotkey_listener, daemon=True).start()
 app.exec()
 
 #add comments
-
-#persist hidden prompt when chat started
 
 #pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py
