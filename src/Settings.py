@@ -137,6 +137,12 @@ class Settings(QWidget):
         self.setFixedSize(0,0)
         threading.Thread(target=self.loadSettings(True)).start()
 
+    def updateModels(self, models):
+        self.models = models
+        self.modelSelect.clear()
+        self.modelSelect.addItems(self.models)
+
+
     def submit(self):
         delimUser = self.delimUserInput.text().lower()
         delimAssistant = self.delimAssistantInput.text().lower()

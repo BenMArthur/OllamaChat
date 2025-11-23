@@ -14,7 +14,7 @@ class UI(QMainWindow):
     newPrompt = pyqtSignal(str)
     moveOrResize = pyqtSignal(str)
     userClosed = pyqtSignal()
-    def __init__(self, dataStore, models, model, pos, size):
+    def __init__(self, dataStore, pos, size):
         super().__init__()
 
         self.dataStore = dataStore
@@ -32,11 +32,11 @@ class UI(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
-        layout.addLayout(self.topBar(models, model))
+        layout.addLayout(self.topBar())
         layout.addWidget(self.createChatDisplay())
 
     #Top bar
-    def topBar(self, models, model):
+    def topBar(self):
         topLayout = QHBoxLayout()
 
         #left aligned
@@ -72,8 +72,6 @@ class UI(QMainWindow):
 
         self.modelSelect = QComboBox()
         self.modelSelect.setFixedWidth(180)
-        self.modelSelect.addItems(models)
-        self.modelSelect.setCurrentText(model)
         topLayout.addWidget(self.modelSelect)
 
         self.settingsButton = QPushButton(text="⚙")
@@ -81,6 +79,11 @@ class UI(QMainWindow):
         topLayout.addWidget(self.settingsButton)
 
         return(topLayout)
+
+    def updateModels(self, models, model):
+        self.modelSelect.clear()
+        self.modelSelect.addItems(models)
+        self.modelSelect.setCurrentText(model)
 
     #Chat display
     def createChatDisplay(self):

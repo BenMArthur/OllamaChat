@@ -20,7 +20,6 @@ class Chat(QMainWindow):
         super().__init__()
         self.threadpool = QThreadPool()
 
-        models = [str(model.model) for model in ollamaList().models]
         self.sysPrompt = ""
         self.enableSysPrompt = False
         self.hideSysPrompt = False
@@ -42,15 +41,9 @@ class Chat(QMainWindow):
 
         self.settings = Settings(self.dataStore, screen)
         self.settings.submitted.connect(self.fetchSettings)
-        if self.settings.settings["loadFixedModel"]:
-            self.model = self.settings.settings["selectedModel"]
-        elif self.settings.settings["prevModel"] != "" and self.settings.settings["prevModel"] in models:
-            self.model = self.settings.settings["prevModel"]
-        else:
-            self.model = models[0]
 
 
-        self.ui = UI(self.dataStore, models, self.model, self.settings.settings["pos"], self.settings.settings["size"])
+        self.ui = UI(self.dataStore, self.settings.settings["pos"], self.settings.settings["size"])
         #connect up UI
         self.ui.historySelect.currentIndexChanged.connect(lambda: self.loadChat())
         self.ui.saveButton.clicked.connect(self.saveChat)
@@ -81,8 +74,21 @@ class Chat(QMainWindow):
         self.prevChat = self.ui.historyInput.text().lower()
         self.toggleSignal.connect(self.toggleVisible)
 
+    def updateModels(self):
+        models = [str(model.model) for model in ollamaList().models]
+        if self.settings.settings["loadFixedModel"] and self.settings.settings["selectedModel"] in models:
+            self.model = self.settings.settings["selectedModel"]
+        elif self.settings.settings["prevModel"] != "" and self.settings.settings["prevModel"] in models:
+            self.model = self.settings.settings["prevModel"]
+        else:
+            self.model = models[0]
+
+        self.ui.updateModels(models, self.model)
+        self.settings.updateModels(models)
+
     def toggleVisible(self):
         if self.ui.isHidden():
+            self.updateModels()
             self.newChat(False)
             self.ui.setWindowFlags(self.ui.windowFlags() | Qt.WindowStaysOnTopHint)
             self.ui.show()
