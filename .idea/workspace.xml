@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="SORTS MODELS AND chats" />
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="only one instance at a time">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -406,7 +409,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764324516821</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="only one instance at a time">
+      <option name="closed" value="true" />
+      <created>1764325045366</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1764325045366</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,7 +432,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="window now retains previous size and position" />
     <MESSAGE value="readme2" />
     <MESSAGE value="fixed loading/saving bugs" />
     <MESSAGE value="fully moved ui back into chat to fix threading issues, threading issues may have been with geenrate response instead" />
@@ -446,6 +456,7 @@
     <MESSAGE value="fixed connections, user closing" />
     <MESSAGE value="updates modesl" />
     <MESSAGE value="SORTS MODELS AND chats" />
-    <option name="LAST_COMMIT_MESSAGE" value="SORTS MODELS AND chats" />
+    <MESSAGE value="only one instance at a time" />
+    <option name="LAST_COMMIT_MESSAGE" value="only one instance at a time" />
   </component>
 </project>

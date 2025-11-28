@@ -2,7 +2,8 @@
 An app for interacting with your ollama models
 
 ## Requirements
-You must install [ollama](ollama.com) and download a model.
+You must install [ollama](ollama.com).
+When downloading or deleting models with the window open, you must close and reopen the window
 
 ## Usage
 - **Open/close window:** `Ctrl + Alt + Space`  
@@ -36,12 +37,12 @@ This is the format used:
 ### Downloading
 1. You can download the .exe from the realeases here
 2. or you can clone the src files, install all the dependencies in a venv, and build it yourself using:
+```pip install ollama PyQt5 winshell pywin32 keyboard```
 ```pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py```
 
 ### Installing
-Put the exe somewhere and run it once \
+Put the exe somewhere and run it \
 it will then run on startup \
-if it crashes for some reason you can run it again. But I should have fixed the crashing.
 
 ### Uninstalation
 to fully delete 
