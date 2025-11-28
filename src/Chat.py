@@ -75,7 +75,7 @@ class Chat(QMainWindow):
         self.toggleSignal.connect(self.toggleVisible)
 
     def updateModels(self):
-        models = [str(model.model) for model in ollamaList().models]
+        models = sorted([str(model.model) for model in ollamaList().models])
         if self.settings.settings["loadFixedModel"] and self.settings.settings["selectedModel"] in models:
             self.model = self.settings.settings["selectedModel"]
         elif self.settings.settings["prevModel"] != "" and self.settings.settings["prevModel"] in models:
@@ -106,7 +106,7 @@ class Chat(QMainWindow):
             for item in temp_dir.iterdir():
                 if item.is_file() or item.is_symlink():
                     item.unlink()
-        self.ui.historyNames = [path.name[:-4] for path in list(sorted((self.dataStore / f"history").glob('*.txt')))]
+        self.ui.historyNames = sorted([path.name[:-4] for path in list(sorted((self.dataStore / f"history").glob('*.txt')))])
         self.ui.historySelect.clear()
         self.ui.historySelect.addItems(self.ui.historyNames)
 
@@ -303,6 +303,7 @@ class Chat(QMainWindow):
             self.saveTemp()
             self.ui.historySelect.clear()
             self.ui.historyNames[currentIndex] = newName
+            self.ui.historyNames = sorted(self.ui.historyNames)
             self.ui.historySelect.addItems(self.ui.historyNames)
             self.ui.historyInput.setText(newName)
             self.ui.historySelect.setCurrentIndex(currentIndex)
@@ -434,6 +435,7 @@ class Chat(QMainWindow):
                 default = f"{" ".join(default.split(" ")[:2])} {str(i)}"
                 i += 1
             self.ui.historyNames[0] = default
+            self.ui.historyNames = sorted(self.ui.historyNames)
             self.ui.chat_display.clear()
             self.ui.historySelect.blockSignals(True)
             self.ui.historySelect.clear()
