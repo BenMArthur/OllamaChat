@@ -12,6 +12,19 @@ import ctypes
 import threading
 import subprocess
 
+appName = "ollamaChat"
+
+def already_running(appName):
+    mutex = ctypes.windll.kernel32.CreateMutexW(None, False, appName)
+    last_error = ctypes.windll.kernel32.GetLastError()
+    if last_error == 183:  # ERROR_ALREADY_EXISTS
+        return True
+    return False
+if already_running(appName):
+    sys.exit(0)
+
+
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appName)
 # Function to add the program to Windows startup
 def addStartup():
     startup = winshell.startup()
@@ -25,24 +38,22 @@ def addStartup():
         shortcut.IconLocation = exe_path
         shortcut.WindowStyle = 7
         shortcut.save()
+addStartup()
 
-def hotkey_listener():
-    keyboard.add_hotkey('ctrl+alt+space', lambda: chat.toggleSignal.emit())
-    keyboard.wait()
 
 CREATE_NO_WINDOW = 0x08000000
 subprocess.Popen(["ollama", "serve"], creationflags=CREATE_NO_WINDOW)
-
-appName = "ollamaChat"
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appName)
-addStartup()
-
 app = QApplication(sys.argv)
 font = QFont("Arial", 11)
 app.setFont(font)
 chat = Chat(app.primaryScreen().availableGeometry(), appName)
 
+def hotkey_listener():
+    keyboard.add_hotkey('ctrl+alt+space', lambda: chat.toggleSignal.emit())
+    keyboard.wait()
 threading.Thread(target=hotkey_listener, daemon=True).start()
+
+
 app.exec()
 
 #add comments
