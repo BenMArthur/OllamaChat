@@ -305,8 +305,7 @@ class Chat(QMainWindow):
             self.ui.historyNames[currentIndex] = newName
             self.ui.historyNames = sorted(self.ui.historyNames)
             self.ui.historySelect.addItems(self.ui.historyNames)
-            self.ui.historyInput.setText(newName)
-            self.ui.historySelect.setCurrentIndex(currentIndex)
+            self.ui.historySelect.setCurrentIndex(self.ui.historyNames.index(newName))
 
 
         except Exception as e:
@@ -440,6 +439,7 @@ class Chat(QMainWindow):
             self.ui.historySelect.blockSignals(True)
             self.ui.historySelect.clear()
             self.ui.historySelect.addItems(self.ui.historyNames)
+            self.ui.historySelect.setCurrentIndex(self.ui.historyNames.index(default))
             self.ui.historyInput.setText(self.ui.historySelect.currentText())
             self.ui.historySelect.blockSignals(False)
 
