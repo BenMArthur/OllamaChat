@@ -1,6 +1,8 @@
 # Ollama Chat
 An app for interacting with your ollama models
 
+https://github.com/user-attachments/assets/78ec212b-636f-4583-839a-c5d650eb8ef9
+
 ## Requirements
 You must install [ollama](ollama.com).
 When downloading or deleting models with the window open, you must close and reopen the window
