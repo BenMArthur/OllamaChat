@@ -1,9 +1,15 @@
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
 import threading
 
+import winshell
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
-    QTextEdit, QComboBox, QLabel, QLineEdit, QCheckBox, QRadioButton, QPushButton
+    QTextEdit, QComboBox, QLabel, QLineEdit, QCheckBox, QRadioButton, QPushButton, QMessageBox
 )
 from PyQt5.QtCore import pyqtSignal
 from ollama import list as ollamaList
@@ -15,9 +21,10 @@ from LoadImage import resource_path
 class Settings(QWidget):
     submitted = pyqtSignal(str)
 
-    def __init__(self, dataStore, screen):
+    def __init__(self, dataStore, screen, appname):
         super().__init__()
         self.dataStore = dataStore
+        self.appName = appname
         self.defaults = {"delimUser": "user", "delimAssistant": "assistant", "delimSystem": "system",
                         "enableSysPrompt": False, "hideSysPrompt": False, "sysPrompt": "", "loadFixedModel": False,
                         "selectedModel": "", "prevModel": "", "pos": (screen.width()//2-300, screen.height()//2-150), "size": (600, 300)}
@@ -129,6 +136,12 @@ class Settings(QWidget):
             self.submissionButton.clicked.connect(self.submit)
             submissionLayout.addWidget(self.submissionButton)
 
+            self.closeButton = QPushButton(text="⏻")
+            self.closeButton.setFixedWidth(27)
+            self.closeButton.setStyleSheet("color: red; font-weight: bold;")
+            submissionLayout.addWidget(self.closeButton)
+            self.closeButton.clicked.connect(self.confirmExit)
+
             return submissionLayout
         layout.addLayout(bottom())
 
@@ -136,6 +149,73 @@ class Settings(QWidget):
         #just locks size, cannot get smaller than elements
         self.setFixedSize(0,0)
         threading.Thread(target=self.loadSettings(True)).start()
+
+    # --- Function that shows a warning and exits ---
+    def confirmExit(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Exit Program")
+        msg.setText("This will fully exit the program.\nThe exe must be re-ran to use again")
+        # Add three custom buttons
+        yes_btn = msg.addButton("Exit", QMessageBox.AcceptRole)
+        no_btn = msg.addButton("No", QMessageBox.RejectRole)
+        uninstall_btn = msg.addButton("Uninstall", QMessageBox.DestructiveRole)
+        uninstall_btn.setStyleSheet("color: red;")
+
+        msg.exec_()
+
+        # Determine which was clicked
+        clicked = msg.clickedButton()
+
+        if clicked == yes_btn:
+            sys.exit(0)
+        elif clicked == no_btn:
+            pass  # Do nothing
+        elif clicked == uninstall_btn:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Uninstall")
+            msg.setText("This will delete the application and all other files")
+            # Add three custom buttons
+            limited_btn = msg.addButton("Leave history and settings", QMessageBox.AcceptRole)
+            cancel_btn = msg.addButton("Cancel", QMessageBox.RejectRole)
+            full_btn = msg.addButton("Delete everything", QMessageBox.DestructiveRole)
+
+            msg.exec_()
+            clicked = msg.clickedButton()
+
+            if clicked == cancel_btn:
+                pass
+            elif clicked == full_btn:
+                if os.path.isdir(self.dataStore):
+                    shutil.rmtree(self.dataStore)
+            elif clicked == limited_btn or clicked == full_btn:
+                startup = winshell.startup()
+                shortcut_path = os.path.join(startup, f"{self.appName}.lnk")
+                os.remove(shortcut_path)
+
+                exe_path = sys.argv[0]
+                name = exe_path.split("\\")[-1].lower()
+                name = name.split(".")
+                if name[-1] == "exe" and "python" not in ".".join(name):
+                    # Create a temporary batch file
+                    bat_file = tempfile.NamedTemporaryFile(delete=False, suffix=".bat").name
+                    # Write the batch commands
+                    with open(bat_file, "w") as f:
+                        f.write(f"""
+                        @echo off
+                        timeout /t 5 > nul
+                        del "{exe_path}"
+                        del "{bat_file}"
+                        """)
+                    # Run the batch file silently
+                    subprocess.Popen(
+                        ['cmd', '/c', bat_file],
+                        creationflags=subprocess.CREATE_NO_WINDOW
+                    )
+                # Exit the PyQt application
+                sys.exit()
+
 
     def updateModels(self, models):
         self.models = models

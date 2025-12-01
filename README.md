@@ -4,7 +4,7 @@ An app for interacting with your ollama models
 https://github.com/user-attachments/assets/78ec212b-636f-4583-839a-c5d650eb8ef9
 
 ## Requirements
-You must install [ollama](ollama.com).
+You must install [ollama](ollama.com).\
 When downloading or deleting models with the window open, you must close and reopen the window
 
 ## Usage
@@ -13,11 +13,10 @@ When downloading or deleting models with the window open, you must close and reo
 - **regenerate response** `Shift + Enter` with nothing after user:
 - **stop generation** `Shift + Enter` while generating:
 - **intervening in generation** `Shift + Enter` with no user: will treat the content after assistant: as the start of the generated response. 
-  - Doesn't really work with thinking models i.e. deepseek
-  - I haven't looked too much into it, or with different thinking models, however, by default thoughts are not displayed, this seem to treat the tokens generated so far (the start of the content) as the start of the thoughts, it will then generate thoughts at normal, but generate them as content. Content then is generated as normal
-- A lot of things from the same command, but they make sense once you try it out.
+  - Doesn't work as smoothly with thinking models i.e. deepseek
+- A lot of actions from the same command, but they make sense once you try it out.
 
-all prompts, responses, and system prompts are stored in an editbale text box, so it is easy to regenerate responses or edit/streamline them to not have unneeded information that would distract the model
+all prompts, responses, and system prompts are stored in an editabale text box, so it is easy to regenerate responses or edit/streamline them to not have unneeded information that would distract the model
 
 ## Images
 Should work with any number of images in your prompt.\
@@ -38,18 +37,16 @@ This is the format used:
 ## Instalation
 ### Downloading
 1. You can download the .exe from the realeases here
-2. or you can clone the src files, install all the dependencies in a venv, and build it yourself using:
-```pip install ollama PyQt5 winshell pywin32 keyboard```
+2. or you can clone the src files, install all the dependencies in a venv, and build it yourself using:\
+```pip install ollama PyQt5 winshell pywin32 keyboard```\
 ```pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py```
 
 ### Installing
 Put the exe somewhere and run it \
-it will then run on startup \
+it will then run on startup
 
 ### Uninstalation
-to fully delete 
-1. delete the exe
-2. delete /appdata/roaming/ollamaChat
-3. delete /AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/OllamaChat.lnk
+In settings click power button and press uninstall.\
+If choosing to keep history and settings, they can be found in: /appdata/roaming/ollamaChat
 
-only works for windows, probably wouldnt be hard to change it for another platform
+only works for windows, probably wouldn't be hard to change it for another platform

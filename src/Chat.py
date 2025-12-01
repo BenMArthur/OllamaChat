@@ -39,7 +39,7 @@ class Chat(QMainWindow):
                             tempSavePath.unlink()
                     tempPath.rmdir()
 
-        self.settings = Settings(self.dataStore, screen)
+        self.settings = Settings(self.dataStore, screen, self.appName)
         self.settings.submitted.connect(self.fetchSettings)
 
 
