@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QTextEdit, QComboBox, QLabel, QLineEdit, QCheckBox, QRadioButton, QPushButton, QMessageBox
 )
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QTimer
 from ollama import list as ollamaList
 import json
 
@@ -155,10 +155,10 @@ class Settings(QWidget):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setWindowTitle("Exit Program")
-        msg.setText("This will fully exit the program.\nThe exe must be re-ran to use again")
+        msg.setText("This will fully exit the program.\nThe program will stop running on startup.\nThe exe must be re-ran to use again.")
         # Add three custom buttons
         yes_btn = msg.addButton("Exit", QMessageBox.AcceptRole)
-        no_btn = msg.addButton("No", QMessageBox.RejectRole)
+        no_btn = msg.addButton("Cancel", QMessageBox.RejectRole)
         uninstall_btn = msg.addButton("Uninstall", QMessageBox.DestructiveRole)
         uninstall_btn.setStyleSheet("color: red;")
 
@@ -168,18 +168,28 @@ class Settings(QWidget):
         clicked = msg.clickedButton()
 
         if clicked == yes_btn:
+            startup = winshell.startup()
+            shortcut_path = os.path.join(startup, f"{self.appName}.lnk")
+            os.remove(shortcut_path)
             sys.exit(0)
         elif clicked == no_btn:
             pass  # Do nothing
         elif clicked == uninstall_btn:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Uninstall")
-            msg.setText("This will delete the application and all other files")
+            msg.setWindowTitle("Uninstall Program")
+            msg.setText("This will delete the application and all other files.")
             # Add three custom buttons
             limited_btn = msg.addButton("Leave history and settings", QMessageBox.AcceptRole)
             cancel_btn = msg.addButton("Cancel", QMessageBox.RejectRole)
             full_btn = msg.addButton("Delete everything", QMessageBox.DestructiveRole)
+
+            limited_btn.setEnabled(False)
+            full_btn.setEnabled(False)
+            timer = QTimer(msg)
+            timer.setSingleShot(True)
+            timer.timeout.connect(lambda: (limited_btn.setEnabled(True), full_btn.setEnabled(True)))
+            timer.start(3000)
 
             msg.exec_()
             clicked = msg.clickedButton()
