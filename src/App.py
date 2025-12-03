@@ -12,9 +12,9 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication
 from Settings import Settings
 from LoadImage import resource_path
 from TopBar import TopBar
-from src.ChatDisplay import ChatDisplay
-from src.ChatHandler import ChatHandler
-from src.PromptHandler import PromptHandler
+from ChatDisplay import ChatDisplay
+from ChatHandler import ChatHandler
+from PromptHandler import PromptHandler
 
 
 class App(QMainWindow):
@@ -86,7 +86,7 @@ class App(QMainWindow):
         self.topBar.historySelect.currentIndexChanged.connect(
             lambda: self.chatHandler.loadChat(
                 self.prompting,
-                self.chatDisplay.chat_display.toPlainText(),
+                self.chatDisplay.getText(),
                 self.deletingTemp,
                 self.topBar.historyNames,
                 self.topBar.historySelect.currentIndex(),
@@ -102,7 +102,7 @@ class App(QMainWindow):
                 self.topBar.historySelect.currentIndex(),
                 self.topBar.historyInput.text().lower(),
                 self.topBar.historyNames,
-                self.chatDisplay.chat_display.toPlainText(),
+                self.chatDisplay.getText(),
                 self.enableSysPrompt,
                 self.sysPrompt,
                 self.delims
@@ -110,7 +110,7 @@ class App(QMainWindow):
         self.topBar.revertButton.clicked.connect(
             lambda: self.chatHandler.loadChat(
                 self.prompting,
-                self.chatDisplay.chat_display.toPlainText(),
+                self.chatDisplay.getText(),
                 self.deletingTemp,
                 self.topBar.historyNames,
                 self.topBar.historySelect.currentIndex(),
@@ -125,7 +125,7 @@ class App(QMainWindow):
                 self.prompting,
                 self.topBar.historyNames,
                 self.topBar.historySelect.currentText(),
-                self.chatDisplay.chat_display.toPlainText(),
+                self.chatDisplay.getText(),
                 self.settings.settings["sysPrompt"],
                 self.enableSysPrompt,
                 self.hideSysPrompt,
@@ -134,7 +134,7 @@ class App(QMainWindow):
         self.topBar.newButton.clicked.connect(
             lambda: self.chatHandler.newChat(
                 self.prompting,
-                self.chatDisplay.chat_display.toPlainText(),
+                self.chatDisplay.getText(),
                 self.settings.settings["sysPrompt"],
                 self.topBar.historyNames,
                 True,
@@ -142,6 +142,7 @@ class App(QMainWindow):
                 self.hideSysPrompt,
                 self.delims
             ))
+
         self.topBar.modelSelect.currentIndexChanged.connect(self.changeModel)
         self.topBar.settingsButton.clicked.connect(self.settings.toggleSettings)
         self.topBar.historyInput.installEventFilter(self)
@@ -153,7 +154,14 @@ class App(QMainWindow):
         """
         self.chatDisplay = ChatDisplay()
         layout.addWidget(self.chatDisplay)
-        self.chatDisplay.chat_display.installEventFilter(self)
+        self.chatDisplay.rawDisplay.installEventFilter(self)
+        self.chatDisplay.markdownDisplay.installEventFilter(self)
+
+        self.chatDisplay.autoShowRaw.connect(lambda: self.topBar.checkboxRaw.setChecked(True))
+        self.chatDisplay.autoShowMarkdown.connect(lambda: self.topBar.checkboxMarkdown.setChecked(True))
+
+        self.topBar.checkboxRaw.clicked.connect(lambda x: self.chatDisplay.setRawVisibility(x, self.delims))
+        self.topBar.checkboxMarkdown.clicked.connect(lambda x: self.chatDisplay.setMarkdownVisibility(x, self.delims))
 
         """
         -----------------------------------------------------------------------
@@ -167,7 +175,7 @@ class App(QMainWindow):
 
         self.newPrompt.connect(
             lambda: self.promptHandler.prompt(
-                self.chatDisplay.chat_display.toPlainText().strip(),
+                self.chatDisplay.getText(),
                 self.delims,
                 self.model,
                 self.enableSysPrompt,
@@ -182,7 +190,7 @@ class App(QMainWindow):
         self.chatHandler = ChatHandler(self.dataStore, self.topBar.historyInput.text().lower())
         self.chatHandler.display.connect(self.chatDisplay.display_text)
         self.chatHandler.recolour.connect(lambda: self.chatDisplay.recolour_text(self.delims))
-        self.chatHandler.clear.connect(self.chatDisplay.chat_display.clear)
+        self.chatHandler.clear.connect(self.chatDisplay.clearText)
         self.chatHandler.endGeneration.connect(self.promptHandler.endGeneration)
         self.chatHandler.changeCurrentChatName.connect(self.topBar.historyInput.setText)
         self.chatHandler.updateChatNames.connect(self.topBar.newChatNames)
@@ -199,7 +207,7 @@ class App(QMainWindow):
         if self.isHidden():
             self.updateModels()
             self.chatHandler.newChat(self.prompting,
-                                     self.chatDisplay.chat_display.toPlainText(),
+                                     self.chatDisplay.getText(),
                                      self.settings.settings["sysPrompt"],
                                      self.topBar.historyNames,
                                      False,
@@ -212,7 +220,7 @@ class App(QMainWindow):
             self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
             self.show()
         else:
-            self.chatDisplay.chat_display.clear()
+            self.chatDisplay.clearText()
             self.chatHandler.clearTemp()
             self.hide()
             self.settings.hide()
@@ -240,11 +248,10 @@ class App(QMainWindow):
             else:
                 self.changeDelims(newDelims)
 
-            text = self.chatDisplay.chat_display.toPlainText()
+            text = self.chatDisplay.getText()
             self.enableSysPrompt, self.hideSysPrompt, self.sysPrompt, newText = self.settings.fetchSysPromptSettings(text, self.enableSysPrompt, self.hideSysPrompt, self.sysPrompt)
-
             if newText != text:
-                self.chatDisplay.chat_display.clear()
+                self.chatDisplay.clearText()
                 self.chatDisplay.display_text(newText)
                 self.chatDisplay.recolour_text(self.delims)
 
@@ -260,27 +267,27 @@ class App(QMainWindow):
             if len(changes) == 0:
                 return
 
-            currentText = self.chatDisplay.chat_display.toPlainText()
+            currentText = self.chatDisplay.getText()
             for i in range(len(changes)):
                 currentText = currentText.replace(changes[i][0], changes[i][1])
 
-            self.chatDisplay.chat_display.clear()
+            self.chatDisplay.clearText()
             self.chatDisplay.display_text(currentText)
             self.delims = newDelims
             self.chatDisplay.recolour_text(self.delims)
 
             permSaves = self.dataStore / f"history/"
             tempSaves = self.dataStore / f"history/temp{os.getpid()}"
-
             for directory in [permSaves, tempSaves]:
-                for path in directory.iterdir():
-                    if path.is_file():
-                        with open(path, "r", encoding="utf-8") as file:
-                            text = file.read()
-                        for change in changes:
-                            text = text.replace(change[0], change[1])
-                        with open(path, "w", encoding="utf-8") as file:
-                            file.write(text)
+                if directory.is_dir():
+                    for path in directory.iterdir():
+                        if path.is_file():
+                            with open(path, "r", encoding="utf-8") as file:
+                                text = file.read()
+                            for change in changes:
+                                text = text.replace(change[0], change[1])
+                            with open(path, "w", encoding="utf-8") as file:
+                                file.write(text)
 
         except Exception as e:
             self.chatDisplay.display_text("changeDelims: ", str(e))
@@ -305,13 +312,22 @@ class App(QMainWindow):
                 return False
 
             key = event.key()
-            if obj is self.chatDisplay.chat_display:
+            if obj is self.chatDisplay.rawDisplay or obj is self.chatDisplay.markdownDisplay:
 
                 if (key == Qt.Key_Return or key == Qt.Key_Enter) and event.modifiers() == Qt.ShiftModifier:
+                    if obj is self.chatDisplay.rawDisplay:
+                        self.chatDisplay.renderMarkdown()
+                    else:
+                        self.chatDisplay.renderRaw()
                     self.newPrompt.emit()
                     return True
 
                 if key == Qt.Key_Space:
+                    if obj is self.chatDisplay.rawDisplay:
+                        self.chatDisplay.renderMarkdown()
+                    else:
+                        self.chatDisplay.renderRaw()
+
                     self.chatDisplay.recolour_text(self.delims)
                     return super().eventFilter(obj, event)
 

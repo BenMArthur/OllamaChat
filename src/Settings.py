@@ -239,7 +239,8 @@ class Settings(QWidget):
         delimAssistant = self.delimAssistantInput.text().lower()
         delimSystem = self.delimSystemInput.text().lower()
         if (not delimUser != delimAssistant != delimSystem
-                or any([len(x)==0 for x in [delimUser, delimAssistant, delimSystem]])):
+                or any([len(x)==0 for x in [delimUser, delimAssistant, delimSystem]])
+                or any([":" in x for x in [delimUser, delimAssistant, delimSystem]])):
             if delimUser != self.settings["delimUser"]:
                 self.delimUserInput.setText("invalid option")
             if delimAssistant != self.settings["delimAssistant"]:
@@ -335,7 +336,6 @@ class Settings(QWidget):
         delims = {"user": f"{self.settings["delimUser"]}:",
                            "assistant": f"{self.settings["delimAssistant"]}:",
                            "system": f"{self.settings["delimSystem"]}:"}
-
         # check if there is any changes in default prompt
         if (newSysPrompt != sysPrompt
                 or newHideSysPrompt != hideSysPrompt
@@ -446,5 +446,4 @@ class Settings(QWidget):
                             if parts[0].lower() != delims["system"].lower():
                                 text = delims["system"] + " " + sysPrompt + "\n\n" + text
                 sysPrompt = newSysPrompt
-
-            return enableSysPrompt, hideSysPrompt, sysPrompt, text
+        return enableSysPrompt, hideSysPrompt, sysPrompt, text

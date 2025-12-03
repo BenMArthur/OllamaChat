@@ -28,7 +28,7 @@ class PromptHandler(QObject):
     def endPrompt(self):
         self.prompting = False
     def chunk(self, chunk):
-        self.progress.emit(chunk)
+        self.progress.emit(f"{chunk}")
     def deleteForRegen(self):
         self.reGen.emit()
     def endGeneration(self):

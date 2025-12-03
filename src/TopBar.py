@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import QComboBox, QPushButton, QLineEdit, QHBoxLayout, QWidget, QCheckBox
 
 
 class TopBar(QWidget):
@@ -39,6 +39,32 @@ class TopBar(QWidget):
 
         """right aligned"""
         layout.addStretch(1)
+
+        self.checkboxRaw = QCheckBox("Raw ")
+        self.checkboxRaw.setChecked(True)
+        self.checkboxMarkdown = QCheckBox("Markdown ")
+
+        style = """
+            QCheckBox {
+                background-color: #FFFFFFFF;
+                border: 1px solid #AAAAAAAA;
+                border-radius: 3px;
+                padding: 2px 1px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox:hover {
+                background-color: #dcebfc;
+                border: 1px solid #4a90e2;
+            }
+            """
+        self.checkboxRaw.setStyleSheet(style)
+        self.checkboxMarkdown.setStyleSheet(style)
+
+        layout.addWidget(self.checkboxRaw)
+        layout.addWidget(self.checkboxMarkdown)
 
         self.modelSelect = QComboBox()
         self.modelSelect.setMaximumWidth(180)

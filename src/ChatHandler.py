@@ -122,7 +122,7 @@ class ChatHandler(QObject):
                     break
 
             self.prevChat = allNames[currentIndex]
-            #self.chatDisplay.chat_display.setFocus()
+            #self.chatDisplay.rawDisplay.setFocus()
             self.recolour.emit()
 
         except Exception as e:

@@ -57,6 +57,6 @@ app.exec()
 
 #add comments
 
-#self.chatDisplay.chat_display.setFocus()
+#self.chatDisplay.rawDisplay.setFocus()
 
 #pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runApp.py
