@@ -4,9 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="can now close and uninstall app from app">
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="safer uninstall">
+      <change afterPath="$PROJECT_DIR$/src/ChatDisplay.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ChatHandler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/PromptHandler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/TopBar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PromptWorker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/PromptWorker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/runChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/runApp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,25 +52,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.Chat.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Settings.executor&quot;: &quot;Run&quot;,
-    &quot;Python.runChat.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/4budg/PycharmProjects/images/.venv/chatPyQt.py&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.Chat.executor": "Run",
+    "Python.Settings.executor": "Run",
+    "Python.runApp.executor": "Run",
+    "Python.runChat.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/4budg/PycharmProjects/images/.venv/chatPyQt.py"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\4budg\PycharmProjects\Chat\src" />
       <recent name="C:\Users\4budg\PycharmProjects\Chat" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.runChat">
-    <configuration name="Chat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.runApp">
+    <configuration name="App" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Chat" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -75,7 +84,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Chat.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\4budg\PycharmProjects\Chat\src\App.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -84,7 +93,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="runChat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="runApp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Chat" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -97,7 +106,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/runChat.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\4budg\PycharmProjects\Chat\src\runApp.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -108,8 +117,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.runChat" />
-        <item itemvalue="Python.Chat" />
+        <item itemvalue="Python.runApp" />
+        <item itemvalue="Python.App" />
       </list>
     </recent_temporary>
   </component>
@@ -441,7 +450,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764603152444</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="safer uninstall">
+      <option name="closed" value="true" />
+      <created>1764706100081</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1764706100081</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -456,7 +473,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="moved ui back into ui, threading seems to work" />
     <MESSAGE value="added logos, can now easily regen, fixed threading issues with promptWorker" />
     <MESSAGE value="added logos, can now easily regen, fixed threading issues with promptWorker, exe seems to work w/icons, imporved image finder" />
     <MESSAGE value="will now change delims when settings change" />
@@ -481,6 +497,7 @@
     <MESSAGE value="Readme" />
     <MESSAGE value="fixed sorting chats and swapping" />
     <MESSAGE value="can now close and uninstall app from app" />
-    <option name="LAST_COMMIT_MESSAGE" value="can now close and uninstall app from app" />
+    <MESSAGE value="safer uninstall" />
+    <option name="LAST_COMMIT_MESSAGE" value="safer uninstall" />
   </component>
 </project>

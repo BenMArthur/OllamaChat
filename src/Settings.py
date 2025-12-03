@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -317,7 +318,133 @@ class Settings(QWidget):
         except Exception as e:
             self.display_text("toggleSettings: ", str(e))
 
+    def updatePrevModel(self, model):
+        self.settings["prevModel"] = model
+        self.saveSettingsFile()
+
     def movedOrResized(self, pos, size):
         self.settings["pos"] = (pos.x(), pos.y())
         self.settings["size"] = (size.width(), size.height())
         self.saveSettingsFile()
+
+    # get settings when they are changed
+    def fetchSysPromptSettings(self, text, enableSysPrompt, hideSysPrompt, sysPrompt):
+        newSysPrompt = self.settings["sysPrompt"]
+        newHideSysPrompt = self.settings["hideSysPrompt"]
+        newEnableSysPrompt = self.settings["enableSysPrompt"]
+        delims = {"user": f"{self.settings["delimUser"]}:",
+                           "assistant": f"{self.settings["delimAssistant"]}:",
+                           "system": f"{self.settings["delimSystem"]}:"}
+
+        # check if there is any changes in default prompt
+        if (newSysPrompt != sysPrompt
+                or newHideSysPrompt != hideSysPrompt
+                or newEnableSysPrompt != enableSysPrompt):
+            parts = re.split(f"({delims["user"]}|{delims["assistant"]}|{delims["system"]})", text, flags=re.IGNORECASE)[1:]
+            safeToCheck = len(parts) >= 2
+            started = delims["assistant"].lower() in [part.lower() for part in parts[::2]]
+            # if there is a change in enabling
+            if newEnableSysPrompt != enableSysPrompt:
+                # if hiding sysPrompt don't have to do anything
+                if not hideSysPrompt:
+                    # if turning on the sysprompt
+                    if newEnableSysPrompt:
+                        # only change the sysprompt if the chat has not started
+                        if not started:
+                            # if there is enough entries to check if the default prompt is being used
+                            if safeToCheck:
+                                # if the current default prompt is there change it
+                                if parts[0].lower() == delims["system"].lower() and parts[
+                                    1] == sysPrompt:
+                                    text = delims["system"] + " " + sysPrompt + "\n\n" + "".join(
+                                        parts[2:])
+                                else:
+                                    text = delims["system"] + " " + sysPrompt + "\n\n" + text
+                            # if there is not enough entries then it doesnt have a system prompt
+                            else:
+                                text = delims["system"] + " " + sysPrompt + "\n\n" + text
+                        # do not change prompt if chat has already started
+                        else:
+                            pass
+                    # if turning off the sysPrompt
+                    else:
+                        # only change if chat has been started
+                        if not started:
+                            if safeToCheck:
+                                # if the current default prompt is there remove it
+                                if parts[0].lower() == delims["system"].lower() and parts[
+                                    1].strip() == sysPrompt.strip():
+                                    text = "".join(parts[2:])
+                            # it wont have the current Default prompt
+                            else:
+                                pass
+                        # do nothing if the chat has started
+                        else:
+                            pass
+                # do nothing if sysprompt is hidden
+                else:
+                    pass
+                enableSysPrompt = newEnableSysPrompt
+
+            # if there is a change in hiding
+            # dont care whether chat has started as this doesn't affect generation
+            if newHideSysPrompt != hideSysPrompt:
+                # only do anything if sysprompt is enabled and there is a sysprompt
+                # if it is disabled it is already hidden and won't be shown
+                if enableSysPrompt:
+                    # if prompt is getting shown
+                    if not newHideSysPrompt:
+                        # if it is safe to check for an existing prompt
+                        if safeToCheck:
+                            # if there is an existing sysprompt do nothing
+                            if parts[0].lower() == delims["system"].lower():
+                                pass
+                            # else add on the default prompt
+                            else:
+                                text = delims["system"] + " " + sysPrompt + "\n\n" + text
+                        # if it is short then it won't have a sysprompt
+                        else:
+                            text = delims["system"] + " " + sysPrompt + "\n\n" + text
+                    # if hiding sysprompt
+                    else:
+                        # if it is safe to check for the prompt
+                        if safeToCheck:
+                            # if the current default prompt is there remove it
+                            if parts[0].lower() == delims["system"].lower() and parts[
+                                1].strip() == sysPrompt.strip():
+                                text = "".join(parts[2:])
+                            # else do nothing
+                            else:
+                                pass
+                        # if it is short then it won't have a sysprompt
+                        else:
+                            pass
+                hideSysPrompt = newHideSysPrompt
+
+            # if change in the content of the prompt
+            if newSysPrompt != sysPrompt:
+                # only do anything if enabled and showing
+                if enableSysPrompt:
+                    if not hideSysPrompt:
+                        # only change if the chat has started
+                        if not started:
+                            if safeToCheck:
+                                # if the old default prompt is there replace it
+                                if parts[0].lower() == delims["system"].lower() and parts[
+                                    1].strip() == sysPrompt.strip():
+                                    text = delims["system"] + " " + newSysPrompt + "\n\n" + "".join(
+                                        parts[2:])
+                            else:
+                                text = delims["system"] + " " + newSysPrompt + "\n\n" + text
+                        # change nothing if chat has started
+                        else:
+                            pass
+                    # if prompt was hidden and chat is started, want to display the old prompt
+                    else:
+                        if started:
+                            # if there is no system prompt
+                            if parts[0].lower() != delims["system"].lower():
+                                text = delims["system"] + " " + sysPrompt + "\n\n" + text
+                sysPrompt = newSysPrompt
+
+            return enableSysPrompt, hideSysPrompt, sysPrompt, text

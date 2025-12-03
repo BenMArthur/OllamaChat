@@ -39,7 +39,7 @@ This is the format used:
 1. You can download the .exe from the realeases here
 2. or you can clone the src files, install all the dependencies in a venv, and build it yourself using:\
 ```pip install ollama PyQt5 winshell pywin32 keyboard```\
-```pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py```
+```pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runApp.py```
 
 ### Installing
 Put the exe somewhere and run it \

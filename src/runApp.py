@@ -1,7 +1,7 @@
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication
 
-from Chat import Chat
+from App import App
 
 import os
 import sys
@@ -46,16 +46,17 @@ subprocess.Popen(["ollama", "serve"], creationflags=CREATE_NO_WINDOW)
 app = QApplication(sys.argv)
 font = QFont("Arial", 11)
 app.setFont(font)
-chat = Chat(app.primaryScreen().availableGeometry(), appName)
+chat = App(app.primaryScreen().availableGeometry(), appName)
 
 def hotkey_listener():
     keyboard.add_hotkey('ctrl+alt+space', lambda: chat.toggleSignal.emit())
     keyboard.wait()
 threading.Thread(target=hotkey_listener, daemon=True).start()
 
-
 app.exec()
 
 #add comments
 
-#pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runChat.py
+#self.chatDisplay.chat_display.setFocus()
+
+#pyinstaller --onefile --add-data=./src/img/:./img/ --noconsole -i ./src/img/icon.ico --name OllamaChat src/runApp.py

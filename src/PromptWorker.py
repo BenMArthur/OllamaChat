@@ -7,7 +7,7 @@ from pathlib import Path
 class PromptWorker(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal(str)
-    reGen = pyqtSignal(str)
+    reGen = pyqtSignal()
 
     startPrompt = pyqtSignal(object, object, object, object)
 
@@ -47,7 +47,7 @@ class PromptWorker(QObject):
                     if counter + 1 == len(splitPrompt) - 1 and splitPrompt[-1] == "" and len(splitPrompt)>=4:
                         if splitPrompt[-4] == delims["assistant"]:
                             history = history[:-1]
-                            self.reGen.emit("regen")
+                            self.reGen.emit()
                     else:
                         if len(images) > 0:
                             history.append({"role": role, "content": splitPrompt[counter + 1].strip(), "images": images})
