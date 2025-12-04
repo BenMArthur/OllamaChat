@@ -46,7 +46,7 @@ class ChatHandler(QObject):
             with open(self.dataStore / f"history/{newName}.txt", "w", encoding="utf-8") as file:
                 file.write(toWrite)
 
-            self.saveTemp(fullChat, enableSysPrompt, sysPrompt)
+            self.saveTemp(fullChat, enableSysPrompt, sysPrompt, delims)
             allNames[currentIndex] = newName
 
             self.updateChatNames.emit(allNames, newName, False)
@@ -120,7 +120,7 @@ class ChatHandler(QObject):
                             self.display.emit(text)
                     #stop if temp has been loaded
                     break
-
+            print(text)
             self.prevChat = allNames[currentIndex]
             #self.chatDisplay.rawDisplay.setFocus()
             self.recolour.emit()

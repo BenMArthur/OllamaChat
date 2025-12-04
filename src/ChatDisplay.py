@@ -62,10 +62,12 @@ class ChatDisplay(QWidget):
                 self.setRawVisibility(True, delims)
 
 
-    def renderRaw(self):
+    def renderRaw(self, delims):
         markdown = self.markdownDisplay.toMarkdown()
         #there is a fixed maximum line width so must remove certain \n
-        markdown = re.sub(r'(?<!\n)(?<!\|)(?<!-)\n(?!\n)(?!\|)(?!\d)(?!\*)(?!-)', ' ', markdown)
+        markdown = re.sub(fr'(?<!\n)(?<!\|)(?<!-)(?<!:)\n(?!\n)(?!\t)(?!\|)(?!\d)(?!\*)(?!-)(?!{delims["assistant"]})', ' ', markdown)
+        markdown = re.sub(r'```(\w+)\s', r'```\1\n', markdown)
+        markdown = re.sub(r' ```', r'\n``` ', markdown)
         savedCursor = self.rawDisplay.textCursor()
 
         self.rawDisplay.blockSignals(True)
@@ -78,6 +80,7 @@ class ChatDisplay(QWidget):
     def renderMarkdown(self):
         if self.markdownDisplay.isVisible():
             text = self.rawDisplay.toPlainText()
+            text = re.sub(r': ```', ': \n```', text)
             #text = text.split()
             savedCursor = self.markdownDisplay.textCursor()
 
@@ -92,6 +95,8 @@ class ChatDisplay(QWidget):
     # recolour all text in text box
     def recolour_text(self, delims):
         try:
+            black = QColor("black")
+            prevEnd = 0
             def py_to_qt_index(s, py_index):
                 # utf-16-le: 2 bytes per code unit; subtract BOM
                 return len(s[:py_index].encode("utf-16-le")) // 2
@@ -120,10 +125,27 @@ class ChatDisplay(QWidget):
                     #    text.encode("utf-16-le")) // 2
 
                     fmt = QTextCharFormat()
+                    fmt.setForeground(black)
+                    cursor.setPosition(prevEnd)
+                    cursor.setPosition(start, QTextCursor.KeepAnchor)
+                    cursor.mergeCharFormat(fmt)
+                    prevEnd = end
+
+                    fmt = QTextCharFormat()
                     fmt.setForeground(role_color)
                     cursor.setPosition(start)
                     cursor.setPosition(end, QTextCursor.KeepAnchor)
                     cursor.mergeCharFormat(fmt)
+
+                fmt = QTextCharFormat()
+                fmt.setForeground(black)
+                cursor.setPosition(prevEnd)
+                end = cursor.document().characterCount() - 1
+                cursor.setPosition(end, QTextCursor.KeepAnchor)
+
+                cursor.mergeCharFormat(fmt)
+
+
         except Exception as e:
             import traceback
             self.display_text("recolourText error:\n" + traceback.format_exc())

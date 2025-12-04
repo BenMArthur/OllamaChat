@@ -219,6 +219,8 @@ class App(QMainWindow):
             self.show()
             self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
             self.show()
+            self.chatDisplay.renderMarkdown()
+            self.chatDisplay.recolour_text(self.delims)
         else:
             self.chatDisplay.clearText()
             self.chatHandler.clearTemp()
@@ -318,7 +320,7 @@ class App(QMainWindow):
                     if obj is self.chatDisplay.rawDisplay:
                         self.chatDisplay.renderMarkdown()
                     else:
-                        self.chatDisplay.renderRaw()
+                        self.chatDisplay.renderRaw(self.delims)
                     self.newPrompt.emit()
                     return True
 
@@ -326,7 +328,7 @@ class App(QMainWindow):
                     if obj is self.chatDisplay.rawDisplay:
                         self.chatDisplay.renderMarkdown()
                     else:
-                        self.chatDisplay.renderRaw()
+                        self.chatDisplay.renderRaw(self.delims)
 
                     self.chatDisplay.recolour_text(self.delims)
                     return super().eventFilter(obj, event)
