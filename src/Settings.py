@@ -26,7 +26,7 @@ class Settings(QWidget):
         super().__init__()
         self.dataStore = dataStore
         self.appName = appname
-        self.defaults = {"delimUser": "user", "delimAssistant": "assistant", "delimSystem": "system",
+        self.defaults = {"delimUser": "user", "delimAssistant": "assistant", "delimSystem": "sysprompt",
                         "enableSysPrompt": False, "hideSysPrompt": False, "sysPrompt": "", "loadFixedModel": False,
                         "selectedModel": "", "prevModel": "", "pos": (screen.width()//2-300, screen.height()//2-150), "size": (600, 300)}
         self.settings = self.defaults
@@ -171,7 +171,8 @@ class Settings(QWidget):
         if clicked == yes_btn:
             startup = winshell.startup()
             shortcut_path = os.path.join(startup, f"{self.appName}.lnk")
-            os.remove(shortcut_path)
+            if os.path.exists(shortcut_path):
+                os.remove(shortcut_path)
             sys.exit(0)
         elif clicked == no_btn:
             pass  # Do nothing

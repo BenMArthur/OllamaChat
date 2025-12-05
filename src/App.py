@@ -155,13 +155,13 @@ class App(QMainWindow):
         self.chatDisplay = ChatDisplay()
         layout.addWidget(self.chatDisplay)
         self.chatDisplay.rawDisplay.installEventFilter(self)
-        self.chatDisplay.markdownDisplay.installEventFilter(self)
+        self.chatDisplay.richDisplay.installEventFilter(self)
 
         self.chatDisplay.autoShowRaw.connect(lambda: self.topBar.checkboxRaw.setChecked(True))
-        self.chatDisplay.autoShowMarkdown.connect(lambda: self.topBar.checkboxMarkdown.setChecked(True))
+        self.chatDisplay.autoShowRich.connect(lambda: self.topBar.checkboxMarkdown.setChecked(True))
 
         self.topBar.checkboxRaw.clicked.connect(lambda x: self.chatDisplay.setRawVisibility(x, self.delims))
-        self.topBar.checkboxMarkdown.clicked.connect(lambda x: self.chatDisplay.setMarkdownVisibility(x, self.delims))
+        self.topBar.checkboxMarkdown.clicked.connect(lambda x: self.chatDisplay.setRichVisibility(x, self.delims))
 
         """
         -----------------------------------------------------------------------
@@ -219,7 +219,7 @@ class App(QMainWindow):
             self.show()
             self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
             self.show()
-            self.chatDisplay.renderMarkdown()
+            self.chatDisplay.renderRich()
             self.chatDisplay.recolour_text(self.delims)
         else:
             self.chatDisplay.clearText()
@@ -314,11 +314,11 @@ class App(QMainWindow):
                 return False
 
             key = event.key()
-            if obj is self.chatDisplay.rawDisplay or obj is self.chatDisplay.markdownDisplay:
+            if obj is self.chatDisplay.rawDisplay or obj is self.chatDisplay.richDisplay:
 
                 if (key == Qt.Key_Return or key == Qt.Key_Enter) and event.modifiers() == Qt.ShiftModifier:
                     if obj is self.chatDisplay.rawDisplay:
-                        self.chatDisplay.renderMarkdown()
+                        self.chatDisplay.renderRich()
                     else:
                         self.chatDisplay.renderRaw(self.delims)
                     self.newPrompt.emit()
@@ -326,7 +326,7 @@ class App(QMainWindow):
 
                 if key == Qt.Key_Space:
                     if obj is self.chatDisplay.rawDisplay:
-                        self.chatDisplay.renderMarkdown()
+                        self.chatDisplay.renderRich()
                     else:
                         self.chatDisplay.renderRaw(self.delims)
 

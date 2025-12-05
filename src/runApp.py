@@ -27,6 +27,9 @@ if already_running(appName):
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appName)
 # Function to add the program to Windows startup
 def addStartup():
+    if not getattr(sys, 'frozen', False):
+        return
+
     startup = winshell.startup()
     exe_path = sys.executable
     shortcut_path = os.path.join(startup, f"{appName}.lnk")

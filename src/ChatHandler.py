@@ -29,7 +29,7 @@ class ChatHandler(QObject):
     def saveChat(self, currentIndex, newName, allNames, fullChat, enableSysPrompt, sysPrompt, delims):
         try:
             i=0
-            if newName.strip() == "":
+            if newName.strip() == "" or any([x in newName for x in [":","\\"]]):
                 newName = "default name"
             while newName in [allNames[j] for j in range(len(allNames)) if j != currentIndex]:
                 i+=1
@@ -120,7 +120,6 @@ class ChatHandler(QObject):
                             self.display.emit(text)
                     #stop if temp has been loaded
                     break
-            print(text)
             self.prevChat = allNames[currentIndex]
             #self.chatDisplay.rawDisplay.setFocus()
             self.recolour.emit()

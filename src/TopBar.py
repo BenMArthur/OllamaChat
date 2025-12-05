@@ -42,7 +42,7 @@ class TopBar(QWidget):
 
         self.checkboxRaw = QCheckBox("Raw ")
         self.checkboxRaw.setChecked(True)
-        self.checkboxMarkdown = QCheckBox("Markdown ")
+        self.checkboxMarkdown = QCheckBox("Rich ")
 
         style = """
             QCheckBox {

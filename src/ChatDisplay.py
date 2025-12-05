@@ -4,18 +4,22 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QTextCharFormat, QTextCursor, QColor
 from PyQt5.QtWidgets import QHBoxLayout, QWidget, QTextEdit
 
+from Translator import makeTranslator
+
 
 class ChatDisplay(QWidget):
     autoShowRaw = pyqtSignal()
-    autoShowMarkdown = pyqtSignal()
+    autoShowRich = pyqtSignal()
     def __init__(self):
         super().__init__()
+        self.richType = "markdown"
+        self.translator = makeTranslator(self.richType)
 
         layout = QHBoxLayout(self)
         self.rawDisplay = self.createRawDisplay()
         layout.addWidget(self.rawDisplay)
-        self.markdownDisplay = self.createMarkdownDisplay()
-        layout.addWidget(self.markdownDisplay)
+        self.richDisplay = self.createRichDisplay()
+        layout.addWidget(self.richDisplay)
 
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
@@ -27,69 +31,46 @@ class ChatDisplay(QWidget):
         rawDisplay.setAcceptRichText(False)
         rawDisplay.setLineWrapMode(QTextEdit.WidgetWidth)
         return rawDisplay
-    def createMarkdownDisplay(self):
-        markdownDisplay = QTextEdit()
-        markdownDisplay.setAcceptRichText(False)
-        markdownDisplay.setLineWrapMode(QTextEdit.WidgetWidth)
-        markdownDisplay.hide()
-        return markdownDisplay
+    def createRichDisplay(self):
+        richDisplay = QTextEdit()
+        richDisplay.setAcceptRichText(False)
+        richDisplay.setLineWrapMode(QTextEdit.WidgetWidth)
+        richDisplay.hide()
+        return richDisplay
 
     def setRawVisibility(self, x, delims):
         if x:
             self.rawDisplay.show()
         else:
-            """if self.markdownDisplay.isVisible():
+            """if self.richDisplay.isVisible():
                 self.rawDisplay.hide()
             else:
                 self.autoShowRaw.emit()"""
             self.rawDisplay.hide()
-            if not self.markdownDisplay.isVisible():
-                self.autoShowMarkdown.emit()
-                self.setMarkdownVisibility(True, delims)
-    def setMarkdownVisibility(self, x, delims):
+            if not self.richDisplay.isVisible():
+                self.autoShowRich.emit()
+                self.setRichVisibility(True, delims)
+    def setRichVisibility(self, x, delims):
         if x:
-            self.markdownDisplay.show()
-            self.renderMarkdown()
+            self.richDisplay.show()
+            self.renderRich()
             self.recolour_text(delims)
         else:
             """if self.rawDisplay.isVisible():
-                self.markdownDisplay.hide()
+                self.richDisplay.hide()
             else:
-                self.autoShowMarkdown.emit()"""
-            self.markdownDisplay.hide()
+                self.autoShowRich.emit()"""
+            self.richDisplay.hide()
             if not self.rawDisplay.isVisible():
                 self.autoShowRaw.emit()
                 self.setRawVisibility(True, delims)
 
 
     def renderRaw(self, delims):
-        markdown = self.markdownDisplay.toMarkdown()
-        #there is a fixed maximum line width so must remove certain \n
-        markdown = re.sub(fr'(?<!\n)(?<!\|)(?<!-)(?<!:)\n(?!\n)(?!\t)(?!\|)(?!\d)(?!\*)(?!-)(?!{delims["assistant"]})', ' ', markdown)
-        markdown = re.sub(r'```(\w+)\s', r'```\1\n', markdown)
-        markdown = re.sub(r' ```', r'\n``` ', markdown)
-        savedCursor = self.rawDisplay.textCursor()
+        self.translator.richToRaw(delims, self.richDisplay, self.rawDisplay)
 
-        self.rawDisplay.blockSignals(True)
-        self.rawDisplay.setText(markdown)
-        #self.recolourRaw()
-        self.rawDisplay.blockSignals(False)
-
-        self.rawDisplay.setTextCursor(savedCursor)
-
-    def renderMarkdown(self):
-        if self.markdownDisplay.isVisible():
-            text = self.rawDisplay.toPlainText()
-            text = re.sub(r': ```', ': \n```', text)
-            #text = text.split()
-            savedCursor = self.markdownDisplay.textCursor()
-
-            self.markdownDisplay.blockSignals(True)
-            self.markdownDisplay.setMarkdown(text)
-            # self.recolourMarkdown()
-            self.markdownDisplay.blockSignals(False)
-
-            self.markdownDisplay.setTextCursor(savedCursor)
+    def renderRich(self):
+        self.translator.rawToRich(self.richDisplay, self.rawDisplay)
 
 
     # recolour all text in text box
@@ -100,7 +81,7 @@ class ChatDisplay(QWidget):
             def py_to_qt_index(s, py_index):
                 # utf-16-le: 2 bytes per code unit; subtract BOM
                 return len(s[:py_index].encode("utf-16-le")) // 2
-            for obj in [self.rawDisplay, self.markdownDisplay]:
+            for obj in [self.rawDisplay, self.richDisplay]:
                 text = obj.toPlainText()
                 cursor = obj.textCursor()
                 cursor.select(QTextCursor.Document)
@@ -156,13 +137,13 @@ class ChatDisplay(QWidget):
         cursor = self.rawDisplay.textCursor()
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(text + end)
-        self.renderMarkdown()
+        self.renderRich()
         self.rawDisplay.ensureCursorVisible()
 
     #display a chunk of output from the worker
     def chunk(self, chunk, delims):
         if chunk == "assis12":
-            if self.rawDisplay.hasFocus():
+            if self.rawDisplay.hasFocus() or (self.richDisplay.hasFocus() and self.richType=="html"):
                 self.display_text(f"\n\n")
             self.display_text(f"{delims["assistant"]} ")
             self.recolour_text(delims)
@@ -171,6 +152,8 @@ class ChatDisplay(QWidget):
             self.recolour_text(delims)
         else:
             self.display_text(chunk)
+
+        self.translator.richToRaw(delims, self.rawDisplay, self.rawDisplay)
 
     #clear previous response if the user wants to regenerate
     def deleteForRegen(self, delims):

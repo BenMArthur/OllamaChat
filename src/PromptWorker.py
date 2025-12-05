@@ -44,7 +44,7 @@ class PromptWorker(QObject):
                                 missingImages = True
                                 self.progress.emit(f"\nimage not found - {pair[0]}")
 
-                    if counter + 1 == len(splitPrompt) - 1 and splitPrompt[-1] == "" and len(splitPrompt)>=4:
+                    if counter + 1 == len(splitPrompt) - 1 and splitPrompt[-1].strip() == "" and len(splitPrompt)>=4:
                         if splitPrompt[-4] == delims["assistant"]:
                             history = history[:-1]
                             self.reGen.emit()

@@ -4,17 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="safer uninstall">
-      <change afterPath="$PROJECT_DIR$/src/ChatDisplay.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ChatHandler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/PromptHandler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/TopBar.py" afterDir="false" />
+    <list default="true" id="ae181464-9603-4877-a30a-fd426fdaa81f" name="Changes" comment="some fixes">
+      <change afterPath="$PROJECT_DIR$/src/Translator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ChatDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ChatDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ChatHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ChatHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/PromptWorker.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/PromptWorker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/runChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/runApp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TopBar.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/TopBar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/runApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/runApp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,18 +52,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.Chat.executor": "Run",
-    "Python.Settings.executor": "Run",
-    "Python.runApp.executor": "Run",
-    "Python.runChat.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/4budg/PycharmProjects/images/.venv/chatPyQt.py"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.Chat.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Settings.executor&quot;: &quot;Run&quot;,
+    &quot;Python.runApp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.runChat.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/4budg/PycharmProjects/images/.venv/chatPyQt.py&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\4budg\PycharmProjects\Chat\src" />
@@ -458,7 +458,31 @@
       <option name="project" value="LOCAL" />
       <updated>1764706100081</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="major refactoring">
+      <option name="closed" value="true" />
+      <created>1764795243088</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1764795243088</updated>
+    </task>
+    <task id="LOCAL-00042" summary="added markdown">
+      <option name="closed" value="true" />
+      <created>1764802344499</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1764802344499</updated>
+    </task>
+    <task id="LOCAL-00043" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1764807422706</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1764807422706</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -473,9 +497,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added logos, can now easily regen, fixed threading issues with promptWorker" />
-    <MESSAGE value="added logos, can now easily regen, fixed threading issues with promptWorker, exe seems to work w/icons, imporved image finder" />
-    <MESSAGE value="will now change delims when settings change" />
     <MESSAGE value="readme changes" />
     <MESSAGE value="spelling fixes" />
     <MESSAGE value="now only has one worker and one thread. should fix more threading issues" />
@@ -498,6 +519,9 @@
     <MESSAGE value="fixed sorting chats and swapping" />
     <MESSAGE value="can now close and uninstall app from app" />
     <MESSAGE value="safer uninstall" />
-    <option name="LAST_COMMIT_MESSAGE" value="safer uninstall" />
+    <MESSAGE value="major refactoring" />
+    <MESSAGE value="added markdown" />
+    <MESSAGE value="some fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="some fixes" />
   </component>
 </project>
